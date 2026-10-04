@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <title>Sign in · Athenaeum Library Management System</title>
+  <meta name="description" content="Sign in to Athenaeum — the library management system for catalog, circulation and member services.">
+
+  <!-- Fonts, Bootstrap and Icons are self-hosted in assets/vendor — no CDN calls,
+       so the page renders identically offline, behind a firewall, or if only
+       this file (with its folders) is copied somewhere new. -->
+  <link rel="stylesheet" href="assets/vendor/inter/inter.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+  <main class="auth-shell">
+
+    <!-- ================= LEFT: brand / illustration showcase ================= -->
+    <section class="auth-showcase d-none d-lg-flex" aria-hidden="false">
+
+      <div class="auth-brand">
+        <span class="auth-brand-mark"><i class="bi bi-book-half"></i></span>
+        <span>Athenaeum</span>
+      </div>
+
+      <div class="auth-showcase-copy">
+        <h1>Every book, every borrower, in one calm view.</h1>
+        <p>Catalog, circulation, reservations and fines — run your library's daily operations from a single, dependable workspace.</p>
+
+        <!-- Signature illustration: shelved books rising into a floating status card -->
+        <div class="stack-illustration" role="img" aria-label="Illustration of a bookshelf with a floating catalog status card">
+          <svg viewBox="0 0 460 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- shelf line -->
+            <rect x="0" y="196" width="330" height="6" rx="3" fill="rgba(255,255,255,0.25)"/>
+
+            <!-- books of varying height, rising on load -->
+            <g>
+              <rect class="shelf-book" style="animation-delay:60ms"  x="14"  y="132" width="26" height="64" rx="4" fill="#8FB0F5"/>
+              <rect class="shelf-book" style="animation-delay:120ms" x="46"  y="110" width="22" height="86" rx="4" fill="#5D8AEC"/>
+              <rect class="shelf-book" style="animation-delay:180ms" x="74"  y="146" width="30" height="50" rx="4" fill="#B7CCF7"/>
+              <rect class="shelf-book" style="animation-delay:240ms" x="110" y="96"  width="24" height="100" rx="4" fill="#3F6FE0"/>
+              <rect class="shelf-book" style="animation-delay:300ms" x="140" y="124" width="26" height="72" rx="4" fill="#9DB9F6"/>
+              <rect class="shelf-book" style="animation-delay:360ms" x="172" y="104" width="22" height="92" rx="4" fill="#6E97EE"/>
+              <rect class="shelf-book" style="animation-delay:420ms" x="200" y="140" width="30" height="56" rx="4" fill="#C9D8F9"/>
+              <rect class="shelf-book" style="animation-delay:480ms" x="236" y="112" width="24" height="84" rx="4" fill="#4E7CE6"/>
+              <rect class="shelf-book" style="animation-delay:540ms" x="266" y="150" width="26" height="46" rx="4" fill="#AFC6F6"/>
+              <!-- one tilted book, leaning for warmth -->
+              <g class="shelf-book" style="animation-delay:600ms" transform="translate(300 186) rotate(-11)">
+                <rect x="0" y="-70" width="24" height="70" rx="4" fill="#7CA0F0"/>
+              </g>
+            </g>
+
+            <!-- floating open-book / chip motif -->
+            <g class="float-chip" transform="translate(330 40)">
+              <circle cx="0" cy="0" r="34" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.35)"/>
+              <path d="M-14 -6 L0 -12 L14 -6 L14 10 L0 4 L-14 10 Z" fill="rgba(255,255,255,0.85)"/>
+            </g>
+          </svg>
+
+          <!-- Glassmorphic floating status card, the page's signature element -->
+          <div class="glass-stat-card">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+              <span class="stat-label">Catalog</span>
+              <i class="bi bi-arrow-up-right text-white" style="font-size:12px;opacity:.7"></i>
+            </div>
+            <div class="stat-value text-white">12,480</div>
+            <div class="stat-label">titles available today</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-showcase-footer">
+        <div>
+          <div class="metric-value text-white">3,214</div>
+          <div class="metric-label">active members</div>
+        </div>
+        <div>
+          <div class="metric-value text-white">98.6%</div>
+          <div class="metric-label">on-time returns</div>
+        </div>
+        <div>
+          <div class="metric-value text-white">24</div>
+          <div class="metric-label">branches connected</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= RIGHT: authentication form ================= -->
+    <section class="auth-panel">
+      <div class="auth-card">
+
+        <!-- Brand mark shown only on small screens where showcase is hidden -->
+        <div class="auth-brand d-lg-none mb-4" style="color:var(--color-secondary)">
+          <span class="auth-brand-mark" style="background:rgba(37,99,235,0.08); border-color:rgba(37,99,235,0.18)">
+            <i class="bi bi-book-half" style="color:var(--color-primary)"></i>
+          </span>
+          <span>Athenaeum</span>
+        </div>
+
+        <div class="auth-card-header mb-4">
+          <h2>Welcome back</h2>
+          <p>Sign in to continue to your library workspace.</p>
+        </div>
+
+        <form id="loginForm" novalidate>
+
+          <!-- Role selection -->
+          <div class="mb-3">
+            <label class="form-label d-block">I am signing in as</label>
+            <div class="role-select" role="radiogroup" aria-label="Select your role">
+              <div class="role-option">
+                <input type="radio" name="role" id="roleAdmin" value="admin" checked>
+                <label for="roleAdmin">
+                  <i class="bi bi-shield-lock"></i>
+                  Admin
+                </label>
+              </div>
+              <div class="role-option">
+                <input type="radio" name="role" id="roleLibrarian" value="librarian">
+                <label for="roleLibrarian">
+                  <i class="bi bi-person-badge"></i>
+                  Librarian
+                </label>
+              </div>
+              <div class="role-option">
+                <input type="radio" name="role" id="roleStudent" value="student">
+                <label for="roleStudent">
+                  <i class="bi bi-mortarboard"></i>
+                  Student
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email / username -->
+          <div class="mb-3">
+            <label for="loginEmail" class="form-label">Email or member ID</label>
+            <div class="input-icon-group">
+              <i class="bi bi-envelope"></i>
+              <input
+                type="text"
+                class="form-control"
+                id="loginEmail"
+                placeholder="you@university.edu"
+                autocomplete="username"
+                aria-describedby="emailError"
+                required
+              >
+            </div>
+            <div class="field-error" id="emailError">
+              <i class="bi bi-exclamation-circle"></i> Enter a valid email or member ID.
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <label for="loginPassword" class="form-label">Password</label>
+            </div>
+            <div class="input-icon-group">
+              <i class="bi bi-lock"></i>
+              <input
+                type="password"
+                class="form-control"
+                id="loginPassword"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                aria-describedby="passwordError"
+                required
+              >
+              <button type="button" class="password-toggle" id="togglePassword" aria-label="Show password">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            <div class="field-error" id="passwordError">
+              <i class="bi bi-exclamation-circle"></i> Password must be at least 6 characters.
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-2 mb-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="rememberMe" checked>
+              <label class="form-check-label" style="font-size:13.5px; color:var(--color-muted)" for="rememberMe">
+                Remember me
+              </label>
+            </div>
+            <a href="#" class="fw-semibold" style="font-size:13.5px" id="forgotPasswordLink">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-submit" id="loginSubmit">
+            <span class="btn-submit-label">
+              <i class="bi bi-box-arrow-in-right me-1"></i> Sign in
+            </span>
+            <span class="spinner-border" role="status" aria-hidden="true"></span>
+          </button>
+
+          <div class="security-note">
+            <i class="bi bi-shield-check"></i>
+            <span>Your session is encrypted. Institutional accounts are verified through your library's directory.</span>
+          </div>
+        </form>
+
+        <p class="auth-footnote">
+          New to the library? <a href="#" class="fw-semibold">Contact your administrator</a> for access.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bootstrap Bundle (includes Popper), self-hosted -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

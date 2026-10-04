@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="55%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </linearGradient>
+    <linearGradient id="pageGradLeft" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F1F5F9"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="pageGradRight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </linearGradient>
+    <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.8" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base with inner border -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bgGrad)"/>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+
+  <!-- Open Book Symbol -->
+  <g filter="url(#shadow)" transform="translate(0, 1)">
+    <!-- Left Page -->
+    <path d="M 32 45 C 26 43 19 43 14 45.5 C 13.4 45.8 13 45.3 13 44.6 L 13 22.8 C 13 22.2 13.4 21.7 14 21.4 C 19 19 26 19 32 21 Z" 
+          fill="url(#pageGradLeft)"/>
+    
+    <!-- Right Page -->
+    <path d="M 32 21 C 38 19 45 19 50 21.4 C 50.6 21.7 51 22.2 51 22.8 L 51 44.6 C 51 45.3 50.6 45.8 50 45.5 C 45 43 38 43 32 45 Z" 
+          fill="url(#pageGradRight)"/>
+
+    <!-- Subtle Page Lines (Left) -->
+    <path d="M 18 26 C 22 24.5 26 24.5 29 25.5" stroke="#94A3B8" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.6"/>
+    <path d="M 18 31 C 22 29.5 26 29.5 29 30.5" stroke="#94A3B8" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.6"/>
+    <path d="M 18 36 C 22 34.5 26 34.5 29 35.5" stroke="#94A3B8" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.6"/>
+
+    <!-- Subtle Page Lines (Right) -->
+    <path d="M 35 25.5 C 38 24.5 42 24.5 46 26" stroke="#94A3B8" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.6"/>
+    <path d="M 35 30.5 C 38 29.5 42 29.5 46 31" stroke="#94A3B8" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.6"/>
+    <path d="M 35 35.5 C 38 34.5 42 34.5 46 36" stroke="#94A3B8" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.6"/>
+
+    <!-- Spine Divider -->
+    <path d="M 32 21 L 32 45" stroke="#CBD5E1" stroke-width="1" stroke-linecap="round"/>
+
+    <!-- Bookmark Ribbon -->
+    <path d="M 30.5 21 L 30.5 48 L 32 46.5 L 33.5 48 L 33.5 21 Z" fill="url(#ribbonGrad)"/>
+  </g>
+</svg>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <title>Dashboard · Athenaeum Library Management System</title>
+  <meta name="description" content="Athenaeum library dashboard — catalog, circulation and member overview.">
+
+  <!-- Self-hosted fonts, Bootstrap and icons — no CDN calls, works fully offline -->
+  <link rel="stylesheet" href="assets/vendor/inter/inter.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <div class="app-shell" id="appShell">
+
+    <!-- Mobile sidebar backdrop -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-brand-mark"><i class="bi bi-book-half"></i></span>
+        <span class="sidebar-brand-label">Athenaeum</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Overview</div>
+        <a href="dashboard.html" class="nav-item active">
+          <i class="bi bi-grid-1x2"></i>
+          <span class="nav-label">Dashboard</span>
+        </a>
+
+        <div class="sidebar-section-label">Catalog &amp; circulation</div>
+        <a href="books.html" class="nav-item">
+          <i class="bi bi-journal-bookmark"></i>
+          <span class="nav-label">Books</span>
+        </a>
+        <a href="members.html" class="nav-item">
+          <i class="bi bi-people"></i>
+          <span class="nav-label">Members</span>
+        </a>
+        <a href="issue-book.html" class="nav-item">
+          <i class="bi bi-box-arrow-up-right"></i>
+          <span class="nav-label">Issue books</span>
+        </a>
+        <a href="return-book.html" class="nav-item">
+          <i class="bi bi-box-arrow-in-down-left"></i>
+          <span class="nav-label">Return books</span>
+        </a>
+        <a href="reservations.html" class="nav-item">
+          <i class="bi bi-bookmark-star"></i>
+          <span class="nav-label">Reservations</span>
+          <span class="badge-count">6</span>
+        </a>
+        <a href="fines.html" class="nav-item">
+          <i class="bi bi-cash-coin"></i>
+          <span class="nav-label">Fine management</span>
+        </a>
+
+        <div class="sidebar-section-label">Insights</div>
+        <a href="reports.html" class="nav-item">
+          <i class="bi bi-bar-chart-line"></i>
+          <span class="nav-label">Reports</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="bi bi-bell"></i>
+          <span class="nav-label">Notifications</span>
+          <span class="badge-count">3</span>
+        </a>
+
+        <div class="sidebar-section-label">Account</div>
+        <a href="profile.html" class="nav-item">
+          <i class="bi bi-gear"></i>
+          <span class="nav-label">Settings</span>
+        </a>
+        <a href="#" class="nav-item" data-action="logout">
+          <i class="bi bi-box-arrow-left"></i>
+          <span class="nav-label">Logout</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar" data-user-initials>AN</div>
+          <div class="sidebar-user-meta">
+            <div class="name" data-user-name>Amrita Nair</div>
+            <div class="role" data-user-role>Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================= MAIN COLUMN ================= -->
+    <div class="main-col">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <button class="sidebar-toggle-btn d-none d-lg-flex" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
+          <i class="bi bi-layout-sidebar-inset"></i>
+        </button>
+        <button class="sidebar-toggle-btn d-lg-none" id="sidebarMobileBtn" aria-label="Open menu">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <div class="topbar-search">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Search books, members, ISBN…" aria-label="Search">
+        </div>
+
+        <div class="topbar-actions">
+          <button class="dark-toggle" id="darkModeToggle" aria-label="Toggle dark mode">
+            <span class="knob"><i class="bi bi-moon-stars-fill" style="font-size:10px"></i></span>
+          </button>
+          <button class="topbar-icon-btn" aria-label="Messages">
+            <i class="bi bi-chat-dots"></i>
+          </button>
+          <button class="topbar-icon-btn" aria-label="Notifications">
+            <i class="bi bi-bell"></i>
+            <span class="ping-dot"></span>
+          </button>
+
+          <div class="dropdown">
+            <button class="topbar-profile" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="topbar-profile-avatar" data-user-initials>AN</span>
+              <span class="d-none d-md-block text-start">
+                <span class="topbar-profile-name d-block" data-user-name>Amrita Nair</span>
+                <span class="topbar-profile-role" data-user-role>Admin</span>
+              </span>
+              <i class="bi bi-chevron-down" style="font-size:12px; color:var(--color-muted)"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2" style="border-radius:12px; border-color:var(--color-border)">
+              <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i>My profile</a></li>
+              <li><a class="dropdown-item" href="profile.html"><i class="bi bi-gear me-2"></i>Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" data-action="logout"><i class="bi bi-box-arrow-left me-2"></i>Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page content -->
+      <main class="page-content">
+
+        <div class="page-heading">
+          <div>
+            <h1>Welcome back, <span data-user-name>Amrita</span></h1>
+            <p><span id="todayLabel">Today</span> · here's what's happening across your library.</p>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="issue-book.html" class="btn btn-outline-subtle"><i class="bi bi-box-arrow-up-right me-1"></i> Issue book</a>
+            <a href="books.html" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Add book</a>
+          </div>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-primary"><i class="bi bi-journal-bookmark"></i></span>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>4.2%</span>
+            </div>
+            <div class="stat-value" data-stat="total_books">12,480</div>
+            <div class="stat-label">Total books</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-success"><i class="bi bi-check2-circle"></i></span>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>2.1%</span>
+            </div>
+            <div class="stat-value" data-stat="available_books">8,214</div>
+            <div class="stat-label">Available books</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-accent"><i class="bi bi-arrow-left-right"></i></span>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>6.8%</span>
+            </div>
+            <div class="stat-value" data-stat="issued_books">3,842</div>
+            <div class="stat-label">Issued books</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-warning"><i class="bi bi-bookmark-star"></i></span>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>1.4%</span>
+            </div>
+            <div class="stat-value" data-stat="active_reservations">224</div>
+            <div class="stat-label">Reserved books</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-danger"><i class="bi bi-exclamation-triangle"></i></span>
+              <span class="stat-trend down"><i class="bi bi-arrow-down-short"></i>3.0%</span>
+            </div>
+            <div class="stat-value" data-stat="overdue_count">96</div>
+            <div class="stat-label">Overdue books</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-secondary"><i class="bi bi-people"></i></span>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>5.6%</span>
+            </div>
+            <div class="stat-value" data-stat="total_members">3,214</div>
+            <div class="stat-label">Active members</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-primary"><i class="bi bi-hourglass-split"></i></span>
+              <span class="stat-trend down"><i class="bi bi-arrow-down-short"></i>1.9%</span>
+            </div>
+            <div class="stat-value" data-stat="pending_returns">128</div>
+            <div class="stat-label">Pending returns</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-success"><i class="bi bi-cash-coin"></i></span>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>9.3%</span>
+            </div>
+            <div class="stat-value" data-stat="total_fines_collected">₹18,450</div>
+            <div class="stat-label">Total fine collected</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-grid">
+          <div class="panel-card" style="margin-bottom:0">
+            <div class="chart-card-header">
+              <div>
+                <h2>Monthly borrowing trend</h2>
+                <span class="subtitle">Issued vs. returned, last 6 months</span>
+              </div>
+            </div>
+            <div style="height:230px">
+              <canvas id="borrowTrendChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#2563EB"></span>Issued</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#10B981"></span>Returned</span>
+            </div>
+          </div>
+
+          <div class="panel-card" style="margin-bottom:0">
+            <div class="chart-card-header">
+              <div>
+                <h2>Book categories</h2>
+                <span class="subtitle">Share of total catalog</span>
+              </div>
+            </div>
+            <div style="height:230px">
+              <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#2563EB"></span>Fiction</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#3B82F6"></span>Science</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#93C5FD"></span>History</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#10B981"></span>Technology</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#F59E0B"></span>Biography</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="chart-card-header">
+            <div>
+              <h2>Daily visitors</h2>
+              <span class="subtitle">Library footfall, this week</span>
+            </div>
+          </div>
+          <div style="height:190px">
+            <canvas id="visitorsChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Lower grid: activity, due dates, quick actions -->
+        <div class="dashboard-lower-grid">
+          <div class="panel-card" style="margin-bottom:0">
+            <div class="panel-card-header">
+              <h2>Recent activity</h2>
+              <a href="reports.html" class="view-all-link">View all</a>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="table-activity">
+                <thead>
+                  <tr>
+                    <th>Member</th>
+                    <th>Book</th>
+                    <th>Action</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="row-avatar">RK</span>Rahul Krishnan</td>
+                    <td>Clean Code</td>
+                    <td>Issued</td>
+                    <td>Today, 10:24 AM</td>
+                    <td><span class="badge-status issued">Issued</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="row-avatar">SP</span>Sneha Pillai</td>
+                    <td>The Silent Patient</td>
+                    <td>Returned</td>
+                    <td>Today, 9:58 AM</td>
+                    <td><span class="badge-status returned">Returned</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="row-avatar">AV</span>Arjun Varma</td>
+                    <td>Sapiens: A Brief History</td>
+                    <td>Reserved</td>
+                    <td>Yesterday, 4:12 PM</td>
+                    <td><span class="badge-status reserved">Reserved</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="row-avatar">MN</span>Meera Nair</td>
+                    <td>Atomic Habits</td>
+                    <td>Overdue</td>
+                    <td>3 days ago</td>
+                    <td><span class="badge-status overdue">Overdue</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="row-avatar">KJ</span>Kevin Jacob</td>
+                    <td>Introduction to Algorithms</td>
+                    <td>Issued</td>
+                    <td>2 days ago</td>
+                    <td><span class="badge-status issued">Issued</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="row-avatar">DP</span>Divya Prasad</td>
+                    <td>The Alchemist</td>
+                    <td>Returned</td>
+                    <td>2 days ago</td>
+                    <td><span class="badge-status returned">Returned</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel-card">
+              <div class="panel-card-header">
+                <h2>Upcoming due dates</h2>
+                <a href="fines.html" class="view-all-link">View all</a>
+              </div>
+
+              <div class="due-list-item">
+                <div class="due-cover" style="background:linear-gradient(160deg,#2563EB,#1E3A8A)"></div>
+                <div class="due-meta">
+                  <div class="book-title">Clean Code</div>
+                  <div class="borrower">Rahul Krishnan</div>
+                </div>
+                <span class="due-chip today">Due today</span>
+              </div>
+              <div class="due-list-item">
+                <div class="due-cover" style="background:linear-gradient(160deg,#F59E0B,#B45309)"></div>
+                <div class="due-meta">
+                  <div class="book-title">Introduction to Algorithms</div>
+                  <div class="borrower">Kevin Jacob</div>
+                </div>
+                <span class="due-chip soon">In 2 days</span>
+              </div>
+              <div class="due-list-item">
+                <div class="due-cover" style="background:linear-gradient(160deg,#10B981,#065F46)"></div>
+                <div class="due-meta">
+                  <div class="book-title">Atomic Habits</div>
+                  <div class="borrower">Meera Nair</div>
+                </div>
+                <span class="due-chip today">Overdue 3d</span>
+              </div>
+              <div class="due-list-item">
+                <div class="due-cover" style="background:linear-gradient(160deg,#3B82F6,#1E3A8A)"></div>
+                <div class="due-meta">
+                  <div class="book-title">Sapiens</div>
+                  <div class="borrower">Arjun Varma</div>
+                </div>
+                <span class="due-chip later">In 6 days</span>
+              </div>
+            </div>
+
+            <div class="panel-card" style="margin-bottom:0">
+              <div class="panel-card-header">
+                <h2>Quick actions</h2>
+              </div>
+              <div class="quick-action-grid">
+                <a href="issue-book.html" class="quick-action-btn">
+                  <span class="qa-icon tone-primary" style="background:rgba(37,99,235,0.1); color:var(--color-primary)"><i class="bi bi-box-arrow-up-right"></i></span>
+                  Issue book
+                </a>
+                <a href="return-book.html" class="quick-action-btn">
+                  <span class="qa-icon" style="background:rgba(16,185,129,0.1); color:var(--color-success)"><i class="bi bi-box-arrow-in-down-left"></i></span>
+                  Return book
+                </a>
+                <a href="members.html" class="quick-action-btn">
+                  <span class="qa-icon" style="background:rgba(59,130,246,0.1); color:var(--color-accent)"><i class="bi bi-person-plus"></i></span>
+                  Add member
+                </a>
+                <a href="books.html" class="quick-action-btn">
+                  <span class="qa-icon" style="background:rgba(245,158,11,0.1); color:var(--color-warning)"><i class="bi bi-journal-plus"></i></span>
+                  Add book
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Self-hosted Bootstrap Bundle + Chart.js -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/chartjs/chart.umd.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

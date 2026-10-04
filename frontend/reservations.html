@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <title>Book Reservations · Athenaeum Library Management System</title>
+  <meta name="description" content="Manage book reservations, queues, and holds across Athenaeum library catalog.">
+
+  <!-- Self-hosted fonts, Bootstrap and icons — no CDN calls, works fully offline -->
+  <link rel="stylesheet" href="assets/vendor/inter/inter.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <div class="app-shell" id="appShell">
+
+    <!-- Mobile sidebar backdrop -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-brand-mark"><i class="bi bi-book-half"></i></span>
+        <span class="sidebar-brand-label">Athenaeum</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Overview</div>
+        <a href="dashboard.html" class="nav-item">
+          <i class="bi bi-grid-1x2"></i>
+          <span class="nav-label">Dashboard</span>
+        </a>
+
+        <div class="sidebar-section-label">Catalog &amp; circulation</div>
+        <a href="books.html" class="nav-item">
+          <i class="bi bi-journal-bookmark"></i>
+          <span class="nav-label">Books</span>
+        </a>
+        <a href="members.html" class="nav-item">
+          <i class="bi bi-people"></i>
+          <span class="nav-label">Members</span>
+        </a>
+        <a href="issue-book.html" class="nav-item">
+          <i class="bi bi-box-arrow-up-right"></i>
+          <span class="nav-label">Issue books</span>
+        </a>
+        <a href="return-book.html" class="nav-item">
+          <i class="bi bi-box-arrow-in-down-left"></i>
+          <span class="nav-label">Return books</span>
+        </a>
+        <a href="reservations.html" class="nav-item active">
+          <i class="bi bi-bookmark-star"></i>
+          <span class="nav-label">Reservations</span>
+          <span class="badge-count" id="sidebarResCount">6</span>
+        </a>
+        <a href="fines.html" class="nav-item">
+          <i class="bi bi-cash-coin"></i>
+          <span class="nav-label">Fine management</span>
+        </a>
+
+        <div class="sidebar-section-label">Insights</div>
+        <a href="reports.html" class="nav-item">
+          <i class="bi bi-bar-chart-line"></i>
+          <span class="nav-label">Reports</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="bi bi-bell"></i>
+          <span class="nav-label">Notifications</span>
+          <span class="badge-count">3</span>
+        </a>
+
+        <div class="sidebar-section-label">Account</div>
+        <a href="profile.html" class="nav-item">
+          <i class="bi bi-gear"></i>
+          <span class="nav-label">Settings</span>
+        </a>
+        <a href="#" class="nav-item" data-action="logout">
+          <i class="bi bi-box-arrow-left"></i>
+          <span class="nav-label">Logout</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar" data-user-initials>AN</div>
+          <div class="sidebar-user-meta">
+            <div class="name" data-user-name>Amrita Nair</div>
+            <div class="role" data-user-role>Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================= MAIN COLUMN ================= -->
+    <div class="main-col">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <button class="sidebar-toggle-btn d-none d-lg-flex" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
+          <i class="bi bi-layout-sidebar-inset"></i>
+        </button>
+        <button class="sidebar-toggle-btn d-lg-none" id="sidebarMobileBtn" aria-label="Open menu">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <div class="topbar-search">
+          <i class="bi bi-search"></i>
+          <input type="text" id="topbarSearchInput" placeholder="Search reservations, book title, member…" aria-label="Search">
+        </div>
+
+        <div class="topbar-actions">
+          <button class="dark-toggle" id="darkModeToggle" aria-label="Toggle dark mode">
+            <span class="knob"><i class="bi bi-moon-stars-fill" style="font-size:10px"></i></span>
+          </button>
+          <button class="topbar-icon-btn" aria-label="Messages">
+            <i class="bi bi-chat-dots"></i>
+          </button>
+          <button class="topbar-icon-btn" aria-label="Notifications">
+            <i class="bi bi-bell"></i>
+            <span class="ping-dot"></span>
+          </button>
+
+          <div class="dropdown">
+            <button class="topbar-profile" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="topbar-profile-avatar" data-user-initials>AN</span>
+              <span class="d-none d-md-block text-start">
+                <span class="topbar-profile-name d-block" data-user-name>Amrita Nair</span>
+                <span class="topbar-profile-role" data-user-role>Admin</span>
+              </span>
+              <i class="bi bi-chevron-down" style="font-size:12px; color:var(--color-muted)"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2" style="border-radius:12px; border-color:var(--color-border)">
+              <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i>My profile</a></li>
+              <li><a class="dropdown-item" href="profile.html"><i class="bi bi-gear me-2"></i>Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" data-action="logout"><i class="bi bi-box-arrow-left me-2"></i>Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page content -->
+      <main class="page-content">
+
+        <!-- Page heading -->
+        <div class="page-heading">
+          <div>
+            <h1>Book Reservations</h1>
+            <p>Queue management and active holds for titles currently in circulation.</p>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-subtle" id="btnRefresh" title="Reload from server">
+              <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+            </button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newReservationModal">
+              <i class="bi bi-plus-lg me-1"></i> Place reservation
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= RESERVATION RULES CARD ================= -->
+        <div class="panel-card mb-4" style="border-left: 4px solid var(--color-primary); background: linear-gradient(135deg, rgba(37,99,235,0.03) 0%, rgba(255,255,255,1) 100%);">
+          <div class="d-flex align-items-start gap-3">
+            <div class="stat-icon tone-primary" style="font-size: 20px; width: 42px; height: 42px; min-width: 42px;">
+              <i class="bi bi-info-circle-fill"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1">
+                <h2 style="font-size: 15px; font-weight: 700; margin: 0;">Reservation Policy &amp; Guidelines</h2>
+                <span class="badge-status reserved" style="font-size: 11px;">
+                  <i class="bi bi-shield-check me-1"></i>Enforced Rule
+                </span>
+              </div>
+              <p class="text-muted-custom mb-3" style="font-size: 13.5px;">
+                <strong>Reservation Criteria:</strong> Only books that are currently <strong>unavailable</strong> (checked out, issued, or reserved by another patron) can be reserved. If a copy is already available in the library stacks, it must be borrowed directly through circulation.
+              </p>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-arrow-repeat text-primary mt-1" style="font-size: 14px;"></i>
+                    <div style="font-size: 12.5px;">
+                      <strong>Queue Priority</strong>
+                      <span class="d-block text-muted-custom">Requests are processed strictly First-Come, First-Served (FCFS) upon return.</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-clock-history text-warning mt-1" style="font-size: 14px;"></i>
+                    <div style="font-size: 12.5px;">
+                      <strong>7-Day Hold Window</strong>
+                      <span class="d-block text-muted-custom">Reserved copies remain on hold for 7 days post-check-in before auto-expiring.</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-x-octagon text-danger mt-1" style="font-size: 14px;"></i>
+                    <div style="font-size: 12.5px;">
+                      <strong>Cancellation Permitted</strong>
+                      <span class="d-block text-muted-custom">Staff and patrons can cancel any pending reservation before physical pickup.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= STAT CARDS ================= -->
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-primary"><i class="bi bi-bookmark-star"></i></span>
+              <span class="stat-trend up" id="statTrendTotal"><i class="bi bi-arrow-up-short"></i>Live</span>
+            </div>
+            <div class="stat-value" id="statTotalRes">0</div>
+            <div class="stat-label">Total reservations</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-warning"><i class="bi bi-hourglass-split"></i></span>
+              <span class="stat-trend down" id="statTrendPending"><i class="bi bi-clock"></i>Queued</span>
+            </div>
+            <div class="stat-value" id="statPendingRes">0</div>
+            <div class="stat-label">Pending hold requests</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-success"><i class="bi bi-check2-circle"></i></span>
+              <span class="stat-trend up"><i class="bi bi-check-lg"></i>Fulfilled</span>
+            </div>
+            <div class="stat-value" id="statFulfilledRes">0</div>
+            <div class="stat-label">Fulfilled &amp; issued</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-danger"><i class="bi bi-x-circle"></i></span>
+              <span class="stat-trend down"><i class="bi bi-dash"></i>Closed</span>
+            </div>
+            <div class="stat-value" id="statCancelledRes">0</div>
+            <div class="stat-label">Cancelled / Expired</div>
+          </div>
+        </div>
+
+        <!-- ================= RESERVATIONS TABLE PANEL ================= -->
+        <div class="panel-card">
+          <div class="panel-card-header flex-wrap gap-2">
+            <div>
+              <h2>All Reservations</h2>
+              <span class="subtitle text-muted-custom" style="font-size: 12.5px;" id="tableSubtext">Showing live queue records from catalog</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <!-- Filter tabs -->
+              <div class="btn-group btn-group-sm" role="group" aria-label="Status filter">
+                <button type="button" class="btn btn-outline-subtle active" data-filter="all">All</button>
+                <button type="button" class="btn btn-outline-subtle" data-filter="pending">Pending</button>
+                <button type="button" class="btn btn-outline-subtle" data-filter="fulfilled">Fulfilled</button>
+                <button type="button" class="btn btn-outline-subtle" data-filter="expired">Expired</button>
+                <button type="button" class="btn btn-outline-subtle" data-filter="cancelled">Cancelled</button>
+              </div>
+
+              <!-- Filter Search Input -->
+              <div class="input-icon-group" style="width: 220px;">
+                <i class="bi bi-search" style="font-size:13px; left:10px;"></i>
+                <input type="text" id="tableFilterInput" class="form-control form-control-sm" placeholder="Filter table…" style="padding-left:30px; font-size:13px;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div style="overflow-x:auto">
+            <table class="table-activity" id="reservationsTable">
+              <thead>
+                <tr>
+                  <th style="width: 100px;">ID</th>
+                  <th>Book Title</th>
+                  <th>Member Name</th>
+                  <th>Reservation Date</th>
+                  <th>Expiry Date</th>
+                  <th>Status</th>
+                  <th style="text-align: right; width: 170px;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="reservationsTableBody">
+                <!-- Rendered dynamically -->
+                <tr>
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    Loading reservations from library server…
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table footer counter -->
+          <div class="d-flex align-items-center justify-content-between pt-3 mt-2 border-top text-muted" style="font-size:12.5px;">
+            <span id="recordCountLabel">Showing 0 records</span>
+            <span id="apiStatusBadge" class="badge bg-light text-muted border">Connecting to /backend/api/reservations/</span>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= PLACE RESERVATION MODAL ================= -->
+  <div class="modal fade" id="newReservationModal" tabindex="-1" aria-labelledby="newReservationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius: var(--radius-lg); border-color: var(--color-border);">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold" id="newReservationModalLabel">
+            <i class="bi bi-bookmark-plus text-primary me-2"></i>Place New Reservation
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="reservationForm">
+          <div class="modal-body p-4">
+            <div class="alert alert-info py-2 px-3 mb-3 d-flex align-items-center gap-2" style="font-size: 13px; border-radius: 8px;">
+              <i class="bi bi-info-circle-fill"></i>
+              <span>Remember: Only books with 0 available copies may be queued.</span>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="resBookTitle">Book Title / ID</label>
+              <div class="input-icon-group">
+                <i class="bi bi-book"></i>
+                <input type="text" id="resBookTitle" class="form-control" placeholder="e.g. Clean Code or ISBN" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="resMemberName">Member Name / ID</label>
+              <div class="input-icon-group">
+                <i class="bi bi-person"></i>
+                <input type="text" id="resMemberName" class="form-control" placeholder="e.g. Sneha Pillai or MEM-0042" required>
+              </div>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label" for="resDate">Reservation Date</label>
+                <input type="date" id="resDate" class="form-control" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label" for="resExpiryDate">Expiry Date</label>
+                <input type="date" id="resExpiryDate" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label" for="resNotes">Notes (Optional)</label>
+              <textarea id="resNotes" class="form-control" rows="2" placeholder="Urgent hold for semester research…"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer border-top">
+            <button type="button" class="btn btn-outline-subtle" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btnSubmitReservation">
+              <i class="bi bi-check-lg me-1"></i> Place Reservation
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" id="appToastContainer" style="z-index: 1080;"></div>
+
+  <!-- Self-hosted Bootstrap Bundle -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Page Script -->
+  <script>
+  (function () {
+    'use strict';
+
+    // Sample fallback data in case Tomcat backend is not yet active
+    var sampleReservations = [
+      { id: '101', book_title: 'Sapiens: A Brief History of Humankind', member_name: 'Arjun Varma', reservation_date: '2026-10-01', expiry_date: '2026-10-08', status: 'pending' },
+      { id: '102', book_title: 'Designing Data-Intensive Applications', member_name: 'Rahul Krishnan', reservation_date: '2026-09-28', expiry_date: '2026-10-05', status: 'pending' },
+      { id: '103', book_title: 'Clean Code: A Handbook of Agile Craft', member_name: 'Sneha Pillai', reservation_date: '2026-09-25', expiry_date: '2026-10-02', status: 'fulfilled' },
+      { id: '104', book_title: 'Introduction to Algorithms (CLRS)', member_name: 'Kevin Jacob', reservation_date: '2026-09-20', expiry_date: '2026-09-27', status: 'expired' },
+      { id: '105', book_title: 'Deep Work: Rules for Focused Success', member_name: 'Divya Prasad', reservation_date: '2026-10-02', expiry_date: '2026-10-09', status: 'pending' },
+      { id: '106', book_title: 'The Pragmatic Programmer', member_name: 'Meera Nair', reservation_date: '2026-09-15', expiry_date: '2026-09-22', status: 'cancelled' },
+      { id: '107', book_title: 'Artificial Intelligence: A Modern Approach', member_name: 'Rohan Gupta', reservation_date: '2026-10-03', expiry_date: '2026-10-10', status: 'pending' }
+    ];
+
+    var reservationsList = [];
+    var currentFilter = 'all';
+    var searchQuery = '';
+
+    // Determine API URLs
+    var API_RELATIVE = '/backend/api/reservations/';
+    var API_ABSOLUTE = 'http://localhost:8081/backend/api/reservations/';
+
+    // Toast helper
+    function notify(message, variant) {
+      if (window.AppUI && window.AppUI.showToast) {
+        window.AppUI.showToast(message, variant);
+        return;
+      }
+      var container = document.getElementById('appToastContainer');
+      var toastEl = document.createElement('div');
+      toastEl.className = 'toast align-items-center border-0 shadow-sm mb-2 text-white bg-' + (variant === 'danger' ? 'danger' : (variant === 'success' ? 'success' : 'primary'));
+      toastEl.setAttribute('role', 'status');
+      toastEl.setAttribute('aria-live', 'polite');
+      toastEl.style.borderRadius = '12px';
+      toastEl.innerHTML = '<div class="d-flex"><div class="toast-body">' + message + '</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>';
+      container.appendChild(toastEl);
+      var toast = new bootstrap.Toast(toastEl, { delay: 3500 });
+      toast.show();
+      toastEl.addEventListener('hidden.bs.toast', function () { toastEl.remove(); });
+    }
+
+    // Initialize UI Shell
+    function initShell() {
+      // Sidebar collapse
+      var shell = document.getElementById('appShell');
+      var collapseBtn = document.getElementById('sidebarCollapseBtn');
+      var mobileBtn = document.getElementById('sidebarMobileBtn');
+      var overlay = document.getElementById('sidebarOverlay');
+
+      if (collapseBtn) {
+        collapseBtn.addEventListener('click', function () {
+          shell.classList.toggle('sidebar-collapsed');
+        });
+      }
+      if (mobileBtn) {
+        mobileBtn.addEventListener('click', function () {
+          shell.classList.add('sidebar-mobile-open');
+        });
+      }
+      if (overlay) {
+        overlay.addEventListener('click', function () {
+          shell.classList.remove('sidebar-mobile-open');
+        });
+      }
+
+      // Dark mode toggle
+      var darkModeToggle = document.getElementById('darkModeToggle');
+      if (darkModeToggle) {
+        if (localStorage.getItem('athenaeum_theme') === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          darkModeToggle.classList.add('is-dark');
+        }
+        darkModeToggle.addEventListener('click', function () {
+          var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (isDark) {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('athenaeum_theme', 'light');
+            darkModeToggle.classList.remove('is-dark');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('athenaeum_theme', 'dark');
+            darkModeToggle.classList.add('is-dark');
+          }
+        });
+      }
+
+      // Profile load from storage
+      var session = null;
+      try {
+        var raw = localStorage.getItem('athenaeum_session') || sessionStorage.getItem('athenaeum_session');
+        if (raw) session = JSON.parse(raw);
+      } catch (e) {}
+
+      var name = (session && session.name) || 'Amrita Nair';
+      var role = (session && session.role) || 'Admin';
+      var initials = name.split(' ').map(function (p) { return p[0]; }).join('').slice(0, 2).toUpperCase();
+
+      document.querySelectorAll('[data-user-name]').forEach(function (el) { el.textContent = name; });
+      document.querySelectorAll('[data-user-role]').forEach(function (el) { el.textContent = role.charAt(0).toUpperCase() + role.slice(1); });
+      document.querySelectorAll('[data-user-initials]').forEach(function (el) { el.textContent = initials; });
+
+      // Logout handler
+      document.querySelectorAll('[data-action="logout"]').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+          e.preventDefault();
+          localStorage.removeItem('athenaeum_session');
+          sessionStorage.removeItem('athenaeum_session');
+          window.location.href = 'login.html';
+        });
+      });
+
+      // Populate default modal dates
+      var today = new Date();
+      var todayStr = today.toISOString().split('T')[0];
+      var expDate = new Date();
+      expDate.setDate(expDate.getDate() + 7);
+      var expStr = expDate.toISOString().split('T')[0];
+
+      var resDateInput = document.getElementById('resDate');
+      var resExpInput = document.getElementById('resExpiryDate');
+      if (resDateInput) resDateInput.value = todayStr;
+      if (resExpInput) resExpInput.value = expStr;
+    }
+
+    // Normalizer for API items
+    function normalizeItem(raw) {
+      return {
+        id: String(raw.id || raw.reservation_id || raw.reservationId || ''),
+        book_title: raw.book_title || raw.bookTitle || raw.title || 'Untitled Book',
+        member_name: raw.member_name || raw.memberName || raw.userName || 'Member',
+        reservation_date: raw.reservation_date || raw.reservationDate || raw.date || '-',
+        expiry_date: raw.expiry_date || raw.expiryDate || raw.expiry || '-',
+        status: String(raw.status || 'pending').toLowerCase()
+      };
+    }
+
+    // Update Stat Cards & Sidebar badge
+    function updateStats() {
+      var total = reservationsList.length;
+      var pending = reservationsList.filter(function (r) { return r.status === 'pending'; }).length;
+      var fulfilled = reservationsList.filter(function (r) { return r.status === 'fulfilled'; }).length;
+      var closed = reservationsList.filter(function (r) { return r.status === 'cancelled' || r.status === 'expired'; }).length;
+
+      document.getElementById('statTotalRes').textContent = total;
+      document.getElementById('statPendingRes').textContent = pending;
+      document.getElementById('statFulfilledRes').textContent = fulfilled;
+      document.getElementById('statCancelledRes').textContent = closed;
+
+      var sidebarBadge = document.getElementById('sidebarResCount');
+      if (sidebarBadge) sidebarBadge.textContent = pending;
+    }
+
+    // Render Table
+    function renderTable() {
+      var tbody = document.getElementById('reservationsTableBody');
+      var filtered = reservationsList.filter(function (item) {
+        var matchesStatus = (currentFilter === 'all') || (item.status === currentFilter);
+        var matchesSearch = true;
+        if (searchQuery.trim() !== '') {
+          var q = searchQuery.toLowerCase();
+          matchesSearch = item.id.toLowerCase().includes(q) ||
+                          item.book_title.toLowerCase().includes(q) ||
+                          item.member_name.toLowerCase().includes(q);
+        }
+        return matchesStatus && matchesSearch;
+      });
+
+      document.getElementById('recordCountLabel').textContent = 'Showing ' + filtered.length + ' of ' + reservationsList.length + ' records';
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-muted">' +
+          '<i class="bi bi-inbox fs-3 d-block mb-2"></i>' +
+          'No reservations match current filters.' +
+          '</td></tr>';
+        return;
+      }
+
+      var html = '';
+      filtered.forEach(function (item) {
+        // Status badge
+        var statusBadge = '';
+        if (item.status === 'pending') {
+          statusBadge = '<span class="badge-status reserved"><i class="bi bi-hourglass-split"></i>Pending</span>';
+        } else if (item.status === 'fulfilled') {
+          statusBadge = '<span class="badge-status returned"><i class="bi bi-check-circle"></i>Fulfilled</span>';
+        } else if (item.status === 'expired') {
+          statusBadge = '<span class="badge-status overdue"><i class="bi bi-clock-history"></i>Expired</span>';
+        } else {
+          statusBadge = '<span class="badge-status" style="background:rgba(107,114,128,0.12); color:var(--color-muted);"><i class="bi bi-x-circle"></i>Cancelled</span>';
+        }
+
+        // Action column
+        var actionCol = '';
+        if (item.status === 'pending') {
+          actionCol = '<button class="btn btn-sm btn-outline-danger btn-cancel-res" data-id="' + item.id + '" style="font-size:12px; padding:3px 10px; border-radius:6px;">' +
+                      '<i class="bi bi-x-circle me-1"></i>Cancel Reservation' +
+                      '</button>';
+        } else {
+          actionCol = '<span class="text-muted" style="font-size:12px;">No actions</span>';
+        }
+
+        // Member initials for row avatar
+        var memInitials = item.member_name.split(' ').map(function (p) { return p[0]; }).join('').slice(0, 2).toUpperCase() || 'M';
+
+        html += '<tr>' +
+          '<td><span class="fw-semibold text-primary">#RES-' + item.id + '</span></td>' +
+          '<td>' +
+            '<div class="d-flex align-items-center gap-2">' +
+              '<i class="bi bi-journal-text text-muted" style="font-size:16px;"></i>' +
+              '<span class="fw-semibold text-dark">' + escapeHtml(item.book_title) + '</span>' +
+            '</div>' +
+          '</td>' +
+          '<td>' +
+            '<div class="d-flex align-items-center">' +
+              '<span class="row-avatar" style="font-size:10px; width:26px; height:26px;">' + memInitials + '</span>' +
+              '<span>' + escapeHtml(item.member_name) + '</span>' +
+            '</div>' +
+          '</td>' +
+          '<td><i class="bi bi-calendar3 me-1 text-muted" style="font-size:11px;"></i>' + escapeHtml(item.reservation_date) + '</td>' +
+          '<td><i class="bi bi-calendar-check me-1 text-muted" style="font-size:11px;"></i>' + escapeHtml(item.expiry_date) + '</td>' +
+          '<td>' + statusBadge + '</td>' +
+          '<td style="text-align: right;">' + actionCol + '</td>' +
+        '</tr>';
+      });
+
+      tbody.innerHTML = html;
+
+      // Attach cancel handlers
+      tbody.querySelectorAll('.btn-cancel-res').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var resId = btn.getAttribute('data-id');
+          handleCancelReservation(resId, btn);
+        });
+      });
+    }
+
+    // Escape HTML helper
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Cancel reservation action
+    function handleCancelReservation(id, buttonEl) {
+      if (!confirm('Are you sure you want to cancel reservation #RES-' + id + '?')) {
+        return;
+      }
+
+      var originalHtml = buttonEl.innerHTML;
+      buttonEl.disabled = true;
+      buttonEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Cancelling…';
+
+      var targetUrls = [
+        API_RELATIVE + id + '/cancel',
+        API_ABSOLUTE + id + '/cancel'
+      ];
+
+      function sendPut(index) {
+        if (index >= targetUrls.length) {
+          // Offline fallback execution
+          applyLocalCancellation(id);
+          notify('Reservation #RES-' + id + ' cancelled (saved locally).', 'warning');
+          return;
+        }
+
+        fetch(targetUrls[index], {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(function (res) {
+          if (res.ok) {
+            return res.json().catch(function () { return { success: true }; });
+          }
+          throw new Error('Endpoint returned ' + res.status);
+        })
+        .then(function (data) {
+          applyLocalCancellation(id);
+          notify('Reservation #RES-' + id + ' successfully cancelled on server.', 'success');
+        })
+        .catch(function () {
+          sendPut(index + 1);
+        });
+      }
+
+      sendPut(0);
+    }
+
+    function applyLocalCancellation(id) {
+      for (var i = 0; i < reservationsList.length; i++) {
+        if (reservationsList[i].id === id) {
+          reservationsList[i].status = 'cancelled';
+          break;
+        }
+      }
+      updateStats();
+      renderTable();
+    }
+
+    // Fetch data from backend
+    function fetchReservations() {
+      var badge = document.getElementById('apiStatusBadge');
+      badge.className = 'badge bg-light text-muted border';
+      badge.textContent = 'Fetching from backend…';
+
+      var candidateUrls = [
+        API_RELATIVE,
+        API_ABSOLUTE
+      ];
+
+      function tryFetch(index) {
+        if (index >= candidateUrls.length) {
+          // Load fallback sample data
+          badge.className = 'badge bg-warning-subtle text-warning border';
+          badge.textContent = 'Live backend offline · Fallback data active';
+          reservationsList = sampleReservations.map(normalizeItem);
+          updateStats();
+          renderTable();
+          return;
+        }
+
+        fetch(candidateUrls[index])
+          .then(function (res) {
+            if (res.ok) return res.json();
+            throw new Error('Status: ' + res.status);
+          })
+          .then(function (data) {
+            var items = Array.isArray(data) ? data : (data.reservations || data.data || []);
+            if (!Array.isArray(items) || items.length === 0) {
+              items = sampleReservations;
+            }
+            reservationsList = items.map(normalizeItem);
+            badge.className = 'badge bg-success-subtle text-success border';
+            badge.textContent = 'Connected: ' + candidateUrls[index];
+            updateStats();
+            renderTable();
+          })
+          .catch(function () {
+            tryFetch(index + 1);
+          });
+      }
+
+      tryFetch(0);
+    }
+
+    // Setup Filter Buttons
+    function initFilters() {
+      var filterButtons = document.querySelectorAll('[data-filter]');
+      filterButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          filterButtons.forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          currentFilter = btn.getAttribute('data-filter');
+          renderTable();
+        });
+      });
+
+      // Filter Search
+      var filterInput = document.getElementById('tableFilterInput');
+      if (filterInput) {
+        filterInput.addEventListener('input', function () {
+          searchQuery = filterInput.value;
+          renderTable();
+        });
+      }
+
+      // Topbar Search sync
+      var topbarInput = document.getElementById('topbarSearchInput');
+      if (topbarInput) {
+        topbarInput.addEventListener('input', function () {
+          searchQuery = topbarInput.value;
+          if (filterInput) filterInput.value = searchQuery;
+          renderTable();
+        });
+      }
+
+      // Refresh Button
+      var refreshBtn = document.getElementById('btnRefresh');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', function () {
+          fetchReservations();
+          notify('Refreshed reservations from catalog.', 'primary');
+        });
+      }
+    }
+
+    // Setup New Reservation Form
+    function initForm() {
+      var form = document.getElementById('reservationForm');
+      if (!form) return;
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var title = document.getElementById('resBookTitle').value.trim();
+        var member = document.getElementById('resMemberName').value.trim();
+        var rDate = document.getElementById('resDate').value;
+        var eDate = document.getElementById('resExpiryDate').value;
+
+        if (!title || !member) return;
+
+        var newId = String(Math.floor(200 + Math.random() * 800));
+        var newRecord = {
+          id: newId,
+          book_title: title,
+          member_name: member,
+          reservation_date: rDate,
+          expiry_date: eDate,
+          status: 'pending'
+        };
+
+        // Try POST to backend
+        var submitBtn = document.getElementById('btnSubmitReservation');
+        submitBtn.disabled = true;
+
+        fetch(API_RELATIVE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newRecord)
+        })
+        .catch(function () {
+          return fetch(API_ABSOLUTE, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newRecord)
+          });
+        })
+        .finally(function () {
+          // In either case, add to local list
+          reservationsList.unshift(newRecord);
+          updateStats();
+          renderTable();
+
+          submitBtn.disabled = false;
+          var modalEl = document.getElementById('newReservationModal');
+          var modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (modalInstance) modalInstance.hide();
+          form.reset();
+
+          notify('Reservation queued for "' + title + '" (Hold #RES-' + newId + ')', 'success');
+        });
+      });
+    }
+
+    // Startup
+    document.addEventListener('DOMContentLoaded', function () {
+      initShell();
+      initFilters();
+      initForm();
+      fetchReservations();
+    });
+  })();
+  </script>
+</body>
+</html>

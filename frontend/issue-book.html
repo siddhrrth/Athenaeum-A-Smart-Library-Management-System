@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <title>Issue Book · Athenaeum Library Management System</title>
+  <meta name="description" content="Athenaeum circulation desk — issue books to members, set loan periods, and monitor active checkouts.">
+
+  <!-- Self-hosted fonts, Bootstrap and icons — no CDN calls, works fully offline -->
+  <link rel="stylesheet" href="assets/vendor/inter/inter.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+
+  <style>
+    /* Issue page custom styles */
+    .issue-desk-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 991.98px) {
+      .issue-desk-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .form-card {
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem 1.45rem;
+    }
+    .preview-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 500;
+      background: #F1F5F9;
+      color: var(--color-text);
+      margin-top: 5px;
+    }
+    .preview-pill.valid {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--color-success);
+    }
+    .preview-pill.invalid {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--color-danger);
+    }
+    .info-card {
+      background: linear-gradient(135deg, rgba(37,99,235,0.04) 0%, rgba(30,58,138,0.06) 100%);
+      border: 1px solid rgba(37,99,235,0.15);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.35rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .policy-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 0.85rem;
+      font-size: 13.5px;
+    }
+    .policy-item i {
+      color: var(--color-primary);
+      font-size: 16px;
+      margin-top: 1px;
+    }
+    .table-activity td, .table-activity th {
+      padding: 0.75rem 0.7rem;
+      vertical-align: middle;
+    }
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .filter-bar .search-box {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+    .filter-bar .search-box input {
+      width: 100%;
+      padding-left: 2.4rem;
+      height: 40px;
+      font-size: 13.5px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--color-border);
+      background: #fff;
+    }
+    .filter-bar .search-box .bi {
+      position: absolute;
+      left: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-muted);
+      pointer-events: none;
+    }
+    /* Dark mode overrides */
+    [data-theme="dark"] .form-card {
+      background: var(--color-card);
+      border-color: var(--color-border);
+    }
+    [data-theme="dark"] .info-card {
+      background: rgba(30, 58, 138, 0.2);
+      border-color: var(--color-border);
+    }
+    [data-theme="dark"] .preview-pill {
+      background: #0F1830;
+      color: var(--color-text);
+    }
+    [data-theme="dark"] .filter-bar .search-box input {
+      background: #0F1830;
+      border-color: var(--color-border);
+      color: var(--color-text);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell" id="appShell">
+
+    <!-- Mobile sidebar backdrop -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-brand-mark"><i class="bi bi-book-half"></i></span>
+        <span class="sidebar-brand-label">Athenaeum</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Overview</div>
+        <a href="dashboard.html" class="nav-item">
+          <i class="bi bi-grid-1x2"></i>
+          <span class="nav-label">Dashboard</span>
+        </a>
+
+        <div class="sidebar-section-label">Catalog &amp; circulation</div>
+        <a href="books.html" class="nav-item">
+          <i class="bi bi-journal-bookmark"></i>
+          <span class="nav-label">Books</span>
+        </a>
+        <a href="members.html" class="nav-item">
+          <i class="bi bi-people"></i>
+          <span class="nav-label">Members</span>
+        </a>
+        <a href="issue-book.html" class="nav-item active">
+          <i class="bi bi-box-arrow-up-right"></i>
+          <span class="nav-label">Issue books</span>
+        </a>
+        <a href="return-book.html" class="nav-item">
+          <i class="bi bi-box-arrow-in-down-left"></i>
+          <span class="nav-label">Return books</span>
+        </a>
+        <a href="reservations.html" class="nav-item">
+          <i class="bi bi-bookmark-star"></i>
+          <span class="nav-label">Reservations</span>
+          <span class="badge-count">6</span>
+        </a>
+        <a href="fines.html" class="nav-item">
+          <i class="bi bi-cash-coin"></i>
+          <span class="nav-label">Fine management</span>
+        </a>
+
+        <div class="sidebar-section-label">Insights</div>
+        <a href="reports.html" class="nav-item">
+          <i class="bi bi-bar-chart-line"></i>
+          <span class="nav-label">Reports</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="bi bi-bell"></i>
+          <span class="nav-label">Notifications</span>
+          <span class="badge-count">3</span>
+        </a>
+
+        <div class="sidebar-section-label">Account</div>
+        <a href="profile.html" class="nav-item">
+          <i class="bi bi-gear"></i>
+          <span class="nav-label">Settings</span>
+        </a>
+        <a href="#" class="nav-item" data-action="logout">
+          <i class="bi bi-box-arrow-left"></i>
+          <span class="nav-label">Logout</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar" data-user-initials>AN</div>
+          <div class="sidebar-user-meta">
+            <div class="name" data-user-name>Amrita Nair</div>
+            <div class="role" data-user-role>Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================= MAIN COLUMN ================= -->
+    <div class="main-col">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <button class="sidebar-toggle-btn d-none d-lg-flex" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
+          <i class="bi bi-layout-sidebar-inset"></i>
+        </button>
+        <button class="sidebar-toggle-btn d-lg-none" id="sidebarMobileBtn" aria-label="Open menu">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <div class="topbar-search">
+          <i class="bi bi-search"></i>
+          <input type="text" id="topbarSearch" placeholder="Search books, members, ISBN…" aria-label="Search">
+        </div>
+
+        <div class="topbar-actions">
+          <button class="dark-toggle" id="darkModeToggle" aria-label="Toggle dark mode">
+            <span class="knob"><i class="bi bi-moon-stars-fill" style="font-size:10px"></i></span>
+          </button>
+          <button class="topbar-icon-btn" aria-label="Messages">
+            <i class="bi bi-chat-dots"></i>
+          </button>
+          <button class="topbar-icon-btn" aria-label="Notifications">
+            <i class="bi bi-bell"></i>
+            <span class="ping-dot"></span>
+          </button>
+
+          <div class="dropdown">
+            <button class="topbar-profile" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="topbar-profile-avatar" data-user-initials>AN</span>
+              <span class="d-none d-md-block text-start">
+                <span class="topbar-profile-name d-block" data-user-name>Amrita Nair</span>
+                <span class="topbar-profile-role" data-user-role>Admin</span>
+              </span>
+              <i class="bi bi-chevron-down" style="font-size:12px; color:var(--color-muted)"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2" style="border-radius:12px; border-color:var(--color-border)">
+              <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i>My profile</a></li>
+              <li><a class="dropdown-item" href="profile.html"><i class="bi bi-gear me-2"></i>Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" data-action="logout"><i class="bi bi-box-arrow-left me-2"></i>Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page content -->
+      <main class="page-content">
+
+        <div class="page-heading">
+          <div>
+            <h1>Issue Book to Member</h1>
+            <p>Authorize loans, schedule return due dates, and monitor active borrowings.</p>
+          </div>
+        </div>
+
+        <!-- Issue Desk Layout: Left Form Card, Right Helper/Overview Card -->
+        <div class="issue-desk-grid">
+
+          <!-- Form Card -->
+          <div class="form-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h2 class="fs-6 fw-bold mb-0">Loan Registration</h2>
+              <span class="badge bg-primary-subtle text-primary fw-semibold" style="font-size:11px; padding:3px 8px; border-radius:99px">
+                Circulation Desk
+              </span>
+            </div>
+
+            <form id="issueBookForm">
+              <div class="row g-3">
+
+                <!-- Book ID -->
+                <div class="col-sm-6">
+                  <label for="bookIdInput" class="form-label">Book ID <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light-subtle text-muted" style="border-color:var(--color-border)"><i class="bi bi-book"></i></span>
+                    <input type="number" class="form-control" id="bookIdInput" min="1" required placeholder="e.g. 1">
+                  </div>
+                  <div id="bookPreviewPill" class="preview-pill d-none">
+                    <i class="bi bi-info-circle"></i> <span id="bookPreviewText">Looking up book…</span>
+                  </div>
+                </div>
+
+                <!-- Member ID -->
+                <div class="col-sm-6">
+                  <label for="memberIdInput" class="form-label">Member ID <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light-subtle text-muted" style="border-color:var(--color-border)"><i class="bi bi-person"></i></span>
+                    <input type="number" class="form-control" id="memberIdInput" min="1" required placeholder="e.g. 101">
+                  </div>
+                  <div id="memberPreviewPill" class="preview-pill d-none">
+                    <i class="bi bi-info-circle"></i> <span id="memberPreviewText">Looking up member…</span>
+                  </div>
+                </div>
+
+                <!-- Librarian ID -->
+                <div class="col-sm-4">
+                  <label for="librarianIdInput" class="form-label">Librarian ID</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light-subtle text-muted" style="border-color:var(--color-border)"><i class="bi bi-shield-check"></i></span>
+                    <input type="number" class="form-control" id="librarianIdInput" value="1" required>
+                  </div>
+                  <small class="text-muted" style="font-size:11px">Auto-filled from session</small>
+                </div>
+
+                <!-- Issue Date -->
+                <div class="col-sm-4">
+                  <label for="issueDateInput" class="form-label">Issue Date</label>
+                  <input type="date" class="form-control" id="issueDateInput" required>
+                </div>
+
+                <!-- Due Date -->
+                <div class="col-sm-4">
+                  <label for="dueDateInput" class="form-label">Due Date</label>
+                  <input type="date" class="form-control" id="dueDateInput" required>
+                </div>
+
+                <div class="col-12 mt-4">
+                  <button type="submit" class="btn btn-primary w-100 py-2" id="submitIssueBtn">
+                    <i class="bi bi-box-arrow-up-right me-2"></i> Issue Book Now
+                  </button>
+                </div>
+
+              </div>
+            </form>
+          </div>
+
+          <!-- Circulation Guidelines & Quick Stats Card -->
+          <div class="info-card">
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <span class="stat-icon tone-primary" style="width:34px; height:34px; font-size:16px">
+                  <i class="bi bi-clock-history"></i>
+                </span>
+                <h3 class="fs-6 fw-bold mb-0">Circulation Policy</h3>
+              </div>
+
+              <div class="policy-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <div>
+                  <strong>Standard Student Limit:</strong> Maximum 3 books for up to 14 days.
+                </div>
+              </div>
+              <div class="policy-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <div>
+                  <strong>Faculty Privileges:</strong> Up to 10 books for 30 days.
+                </div>
+              </div>
+              <div class="policy-item">
+                <i class="bi bi-exclamation-triangle-fill" style="color:var(--color-warning)"></i>
+                <div>
+                  <strong>Overdue Penalty:</strong> ₹10 per day fine applies automatically upon late return.
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3 bg-white rounded-3 border mt-3" style="border-color:var(--color-border)!important">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted" style="font-size:12.5px">Active Borrowings</span>
+                <span class="fw-bold fs-6" id="statActiveBorrows">0</span>
+              </div>
+              <hr class="my-2" style="opacity:0.1">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted" style="font-size:12.5px">Overdue Count</span>
+                <span class="fw-bold fs-6 text-danger" id="statOverdueBorrows">0</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Live Issued Books Table Panel -->
+        <div class="panel-card">
+          <div class="panel-card-header flex-column flex-sm-row gap-2">
+            <div>
+              <h2>Currently Issued Books</h2>
+              <span class="text-muted-custom" style="font-size:12.5px" id="borrowCountSummary">Loading circulation records…</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <button class="btn btn-sm btn-outline-subtle" id="refreshBorrowsBtn" title="Refresh records">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+              </button>
+            </div>
+          </div>
+
+          <!-- Search & Filter -->
+          <div class="filter-bar">
+            <div class="search-box">
+              <i class="bi bi-search"></i>
+              <input type="text" id="borrowSearchInput" placeholder="Filter active loans by title, member name, or ID…" aria-label="Search loans">
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div style="overflow-x:auto">
+            <table class="table-activity" id="borrowsTable">
+              <thead>
+                <tr>
+                  <th style="width:85px">Borrow ID</th>
+                  <th>Book Title</th>
+                  <th>Member Name</th>
+                  <th style="width:115px">Issue Date</th>
+                  <th style="width:115px">Due Date</th>
+                  <th style="width:130px">Status</th>
+                  <th style="text-align:right; width:130px">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="borrowsTableBody">
+                <tr>
+                  <td colspan="7" class="text-center py-4 text-muted-custom">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    Connecting to circulation server…
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle & App Scripts -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // --- Session & UI setup ---
+      const session = (window.AppUI && window.AppUI.getSession()) || {
+        name: 'Amrita Nair',
+        role: 'Admin',
+        email: 'amrita@gmail.com',
+        userId: 1
+      };
+
+      const initials = session.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+      document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = session.name);
+      document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = session.role);
+      document.querySelectorAll('[data-user-initials]').forEach(el => el.textContent = initials);
+
+      // Pre-fill Librarian ID from session if available
+      const librarianInput = document.getElementById('librarianIdInput');
+      if (librarianInput) {
+        librarianInput.value = session.userId || session.librarian_id || 1;
+      }
+
+      // Pre-fill Issue Date (today) and Due Date (+14 days)
+      const today = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const formatYMD = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+      const issueDateInput = document.getElementById('issueDateInput');
+      const dueDateInput = document.getElementById('dueDateInput');
+      if (issueDateInput) issueDateInput.value = formatYMD(today);
+
+      const dueDay = new Date();
+      dueDay.setDate(today.getDate() + 14);
+      if (dueDateInput) dueDateInput.value = formatYMD(dueDay);
+
+      // --- Sidebar Toggle ---
+      const shell = document.getElementById('appShell');
+      const collapseBtn = document.getElementById('sidebarCollapseBtn');
+      const mobileBtn = document.getElementById('sidebarMobileBtn');
+      const overlay = document.getElementById('sidebarOverlay');
+      if (collapseBtn) collapseBtn.addEventListener('click', () => shell.classList.toggle('sidebar-collapsed'));
+      if (mobileBtn) mobileBtn.addEventListener('click', () => shell.classList.add('sidebar-mobile-open'));
+      if (overlay) overlay.addEventListener('click', () => shell.classList.remove('sidebar-mobile-open'));
+
+      // --- Dark Mode ---
+      const darkToggle = document.getElementById('darkModeToggle');
+      if (darkToggle) {
+        if (localStorage.getItem('athenaeum_theme') === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          darkToggle.classList.add('is-dark');
+        }
+        darkToggle.addEventListener('click', () => {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (isDark) {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('athenaeum_theme', 'light');
+            darkToggle.classList.remove('is-dark');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('athenaeum_theme', 'dark');
+            darkToggle.classList.add('is-dark');
+          }
+        });
+      }
+
+      // --- Logout ---
+      document.querySelectorAll('[data-action="logout"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (window.AppUI && window.AppUI.clearSession) window.AppUI.clearSession();
+          window.location.href = 'login.html';
+        });
+      });
+
+      // --- Toast Helper ---
+      function toast(msg, variant = 'primary') {
+        if (window.AppUI && window.AppUI.showToast) {
+          window.AppUI.showToast(msg, variant);
+        } else {
+          alert(msg);
+        }
+      }
+
+      // --- Check URL Params (e.g. ?book_id=1&member_id=101) ---
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('book_id')) {
+        document.getElementById('bookIdInput').value = urlParams.get('book_id');
+      }
+      if (urlParams.has('member_id')) {
+        document.getElementById('memberIdInput').value = urlParams.get('member_id');
+      }
+
+      // --- Sample Borrows Fallback Data ---
+      const SAMPLE_BORROWS = [
+        {
+          borrow_id: 1001,
+          book_id: 1,
+          book_title: "Clean Code",
+          member_id: 101,
+          member_name: "Rahul Krishnan",
+          librarian_id: 1,
+          issue_date: "2026-09-24",
+          due_date: "2026-10-08",
+          status: "issued"
+        },
+        {
+          borrow_id: 1002,
+          book_id: 2,
+          book_title: "Introduction to Algorithms (CLRS)",
+          member_id: 107,
+          member_name: "Kevin Jacob",
+          librarian_id: 1,
+          issue_date: "2026-09-20",
+          due_date: "2026-10-04",
+          status: "issued"
+        },
+        {
+          borrow_id: 1003,
+          book_id: 4,
+          book_title: "Atomic Habits",
+          member_id: 105,
+          member_name: "Meera Nair",
+          librarian_id: 1,
+          issue_date: "2026-09-12",
+          due_date: "2026-09-26",
+          status: "overdue"
+        },
+        {
+          borrow_id: 1004,
+          book_id: 5,
+          book_title: "The Pragmatic Programmer",
+          member_id: 104,
+          member_name: "Arjun Varma",
+          librarian_id: 1,
+          issue_date: "2026-09-28",
+          due_date: "2026-10-12",
+          status: "issued"
+        },
+        {
+          borrow_id: 1005,
+          book_id: 8,
+          book_title: "A Brief History of Time",
+          member_id: 102,
+          member_name: "Sneha Pillai",
+          librarian_id: 1,
+          issue_date: "2026-09-15",
+          due_date: "2026-09-29",
+          status: "overdue"
+        },
+        {
+          borrow_id: 1006,
+          book_id: 3,
+          book_title: "Sapiens: A Brief History of Humankind",
+          member_id: 103,
+          member_name: "Dr. Ramesh Sharma",
+          librarian_id: 1,
+          issue_date: "2026-09-22",
+          due_date: "2026-10-22",
+          status: "issued"
+        }
+      ];
+
+      // Sample lookup dicts
+      const BOOK_DICT = {
+        1: "Clean Code",
+        2: "Introduction to Algorithms (CLRS)",
+        3: "Sapiens: A Brief History",
+        4: "Atomic Habits",
+        5: "The Pragmatic Programmer",
+        6: "Database System Concepts",
+        7: "To Kill a Mockingbird",
+        8: "A Brief History of Time"
+      };
+
+      const MEMBER_DICT = {
+        101: "Rahul Krishnan",
+        102: "Sneha Pillai",
+        103: "Dr. Ramesh Sharma",
+        104: "Arjun Varma",
+        105: "Meera Nair",
+        106: "Prof. Ananya Roy",
+        107: "Kevin Jacob",
+        108: "Divya Prasad"
+      };
+
+      let borrowsList = [];
+
+      // --- Live Input Lookup Previews ---
+      const bookInput = document.getElementById('bookIdInput');
+      const bookPreviewPill = document.getElementById('bookPreviewPill');
+      const bookPreviewText = document.getElementById('bookPreviewText');
+
+      bookInput.addEventListener('input', function () {
+        const val = parseInt(this.value, 10);
+        if (!val) {
+          bookPreviewPill.classList.add('d-none');
+          return;
+        }
+        bookPreviewPill.classList.remove('d-none');
+        if (BOOK_DICT[val]) {
+          bookPreviewPill.className = 'preview-pill valid';
+          bookPreviewText.innerHTML = `<strong>Title:</strong> ${BOOK_DICT[val]}`;
+        } else {
+          bookPreviewPill.className = 'preview-pill';
+          bookPreviewText.innerHTML = `Book #${val}`;
+        }
+      });
+      if (bookInput.value) bookInput.dispatchEvent(new Event('input'));
+
+      const memberInput = document.getElementById('memberIdInput');
+      const memberPreviewPill = document.getElementById('memberPreviewPill');
+      const memberPreviewText = document.getElementById('memberPreviewText');
+
+      memberInput.addEventListener('input', function () {
+        const val = parseInt(this.value, 10);
+        if (!val) {
+          memberPreviewPill.classList.add('d-none');
+          return;
+        }
+        memberPreviewPill.classList.remove('d-none');
+        if (MEMBER_DICT[val]) {
+          memberPreviewPill.className = 'preview-pill valid';
+          memberPreviewText.innerHTML = `<strong>Member:</strong> ${MEMBER_DICT[val]}`;
+        } else {
+          memberPreviewPill.className = 'preview-pill';
+          memberPreviewText.innerHTML = `Member #${val}`;
+        }
+      });
+      if (memberInput.value) memberInput.dispatchEvent(new Event('input'));
+
+      // --- Fetch Borrows API Handler ---
+      async function fetchBorrows() {
+        const tbody = document.getElementById('borrowsTableBody');
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center py-4 text-muted-custom">
+              <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+              Loading live active loans…
+            </td>
+          </tr>
+        `;
+
+        const urls = [
+          '/backend/api/borrows/',
+          'http://localhost:8081/backend/api/borrows/'
+        ];
+        if (window.location.protocol === 'file:') urls.reverse();
+
+        let data = null;
+        for (const url of urls) {
+          try {
+            const res = await fetch(url);
+            if (res.ok) {
+              const json = await res.json();
+              data = Array.isArray(json) ? json : (json.borrows || json.data || null);
+              if (data) break;
+            }
+          } catch (e) {
+            // fallback
+          }
+        }
+
+        if (data && data.length > 0) {
+          borrowsList = data;
+        } else {
+          borrowsList = [...SAMPLE_BORROWS];
+        }
+
+        renderTable();
+        updateStats();
+      }
+
+      function updateStats() {
+        const active = borrowsList.filter(b => (b.status || 'issued').toLowerCase() !== 'returned').length;
+        const todayStr = formatYMD(new Date());
+        const overdue = borrowsList.filter(b => {
+          const s = (b.status || 'issued').toLowerCase();
+          return s === 'overdue' || (s === 'issued' && b.due_date && b.due_date < todayStr);
+        }).length;
+
+        document.getElementById('statActiveBorrows').textContent = active.toString();
+        document.getElementById('statOverdueBorrows').textContent = overdue.toString();
+        document.getElementById('borrowCountSummary').textContent = `Showing ${active} active loan${active === 1 ? '' : 's'}`;
+      }
+
+      function renderTable() {
+        const tbody = document.getElementById('borrowsTableBody');
+        const searchTerm = (document.getElementById('borrowSearchInput').value || '').toLowerCase().trim();
+        const todayStr = formatYMD(new Date());
+
+        const activeBorrows = borrowsList.filter(b => (b.status || 'issued').toLowerCase() !== 'returned');
+
+        const filtered = activeBorrows.filter(b => {
+          const bId = String(b.borrow_id || b.id || '').toLowerCase();
+          const bookTitle = (b.book_title || b.title || BOOK_DICT[b.book_id] || '').toLowerCase();
+          const memberName = (b.member_name || b.name || MEMBER_DICT[b.member_id] || '').toLowerCase();
+          const bookId = String(b.book_id || '').toLowerCase();
+          const memberId = String(b.member_id || '').toLowerCase();
+
+          return !searchTerm || bId.includes(searchTerm) || bookTitle.includes(searchTerm) || memberName.includes(searchTerm) || bookId.includes(searchTerm) || memberId.includes(searchTerm);
+        });
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="text-center py-5">
+                <i class="bi bi-journal-check text-muted mb-2 d-block" style="font-size:24px"></i>
+                <div class="fw-semibold">No active loans found</div>
+                <div class="text-muted-custom" style="font-size:13px">Use the form above to issue a new book.</div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(b => {
+          const borrowId = b.borrow_id || b.id || '—';
+          const bookTitle = b.book_title || b.title || BOOK_DICT[b.book_id] || `Book #${b.book_id}`;
+          const bookId = b.book_id || '';
+          const memberName = b.member_name || b.name || MEMBER_DICT[b.member_id] || `Member #${b.member_id}`;
+          const memberId = b.member_id || '';
+          const issueDate = b.issue_date || '—';
+          const dueDate = b.due_date || '—';
+
+          const isLate = dueDate && dueDate < todayStr;
+          const statusText = isLate ? 'Overdue' : 'Issued';
+          const badgeClass = isLate ? 'badge-status overdue' : 'badge-status issued';
+
+          return `
+            <tr>
+              <td>
+                <span class="fw-bold" style="font-family:var(--font-mono, monospace); font-size:13px; color:var(--color-primary)">
+                  #${borrowId}
+                </span>
+              </td>
+              <td>
+                <div class="fw-semibold" style="font-size:13.5px">${escapeHtml(bookTitle)}</div>
+                <div class="text-muted-custom" style="font-size:11.5px">Book ID: #${bookId}</div>
+              </td>
+              <td>
+                <div class="fw-semibold" style="font-size:13.5px">${escapeHtml(memberName)}</div>
+                <div class="text-muted-custom" style="font-size:11.5px">Member ID: #${memberId}</div>
+              </td>
+              <td style="font-size:13px">
+                ${escapeHtml(issueDate)}
+              </td>
+              <td style="font-size:13px">
+                ${escapeHtml(dueDate)}
+              </td>
+              <td>
+                <span class="${badgeClass}">
+                  <i class="bi ${isLate ? 'bi-exclamation-circle' : 'bi-clock'}"></i>
+                  ${statusText}
+                </span>
+              </td>
+              <td style="text-align:right">
+                <a href="return-book.html?borrow_id=${borrowId}" class="btn btn-outline-subtle btn-sm" title="Process return for this loan">
+                  <i class="bi bi-box-arrow-in-down-left me-1"></i> Return
+                </a>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      // --- Form Submission: Issue Book ---
+      const issueForm = document.getElementById('issueBookForm');
+      const submitBtn = document.getElementById('submitIssueBtn');
+
+      issueForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const bookId = parseInt(document.getElementById('bookIdInput').value, 10);
+        const memberId = parseInt(document.getElementById('memberIdInput').value, 10);
+        const librarianId = parseInt(document.getElementById('librarianIdInput').value, 10) || 1;
+        const issueDate = document.getElementById('issueDateInput').value;
+        const dueDate = document.getElementById('dueDateInput').value;
+
+        if (!bookId || !memberId) {
+          toast('Please enter valid Book ID and Member ID', 'danger');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Issuing Book…';
+
+        const payload = {
+          book_id: bookId,
+          member_id: memberId,
+          librarian_id: librarianId,
+          issue_date: issueDate,
+          due_date: dueDate
+        };
+
+        const postUrls = [
+          '/backend/api/borrows/issue',
+          'http://localhost:8081/backend/api/borrows/issue'
+        ];
+        if (window.location.protocol === 'file:') postUrls.reverse();
+
+        let saved = false;
+        let responseBorrow = null;
+
+        for (const url of postUrls) {
+          try {
+            const res = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+              const resData = await res.json();
+              saved = true;
+              responseBorrow = resData.borrow || resData;
+              break;
+            }
+          } catch (err) {
+            // fallback
+          }
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="bi bi-box-arrow-up-right me-2"></i> Issue Book Now';
+
+        const newBorrowId = (responseBorrow && (responseBorrow.borrow_id || responseBorrow.id)) || (borrowsList.length ? Math.max(...borrowsList.map(b => Number(b.borrow_id || b.id || 0))) + 1 : 1001);
+        const bookName = BOOK_DICT[bookId] || `Book #${bookId}`;
+        const memberName = MEMBER_DICT[memberId] || `Member #${memberId}`;
+
+        const newBorrow = {
+          borrow_id: newBorrowId,
+          book_id: bookId,
+          book_title: bookName,
+          member_id: memberId,
+          member_name: memberName,
+          librarian_id: librarianId,
+          issue_date: issueDate,
+          due_date: dueDate,
+          status: 'issued'
+        };
+
+        borrowsList.unshift(newBorrow);
+        renderTable();
+        updateStats();
+
+        // Reset form inputs except defaults
+        document.getElementById('bookIdInput').value = '';
+        document.getElementById('memberIdInput').value = '';
+        bookPreviewPill.classList.add('d-none');
+        memberPreviewPill.classList.add('d-none');
+
+        if (saved) {
+          toast(`Successfully issued "${bookName}" to ${memberName}! Due on ${dueDate}.`, 'success');
+        } else {
+          toast(`Loan recorded for "${bookName}" to ${memberName} (offline/demo mode).`, 'success');
+        }
+      });
+
+      // Search & Refresh
+      document.getElementById('borrowSearchInput').addEventListener('input', renderTable);
+      document.getElementById('refreshBorrowsBtn').addEventListener('click', fetchBorrows);
+
+      const topbarSearch = document.getElementById('topbarSearch');
+      if (topbarSearch) {
+        topbarSearch.addEventListener('input', function () {
+          document.getElementById('borrowSearchInput').value = this.value;
+          renderTable();
+        });
+      }
+
+      // Initial load
+      fetchBorrows();
+    })();
+  </script>
+</body>
+</html>

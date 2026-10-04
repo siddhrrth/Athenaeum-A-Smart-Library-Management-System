@@ -1,0 +1,353 @@
+/* ==========================================================================
+   Login page — split-screen authentication experience
+   ========================================================================== */
+
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  background: var(--color-bg);
+}
+
+/* -------------------------------------------------------------------- */
+/* LEFT — brand / illustration panel                                    */
+/* -------------------------------------------------------------------- */
+.auth-showcase {
+  position: relative;
+  flex: 1.05;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3rem 3.25rem;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 140% at 15% 10%, #3b74ef 0%, transparent 55%),
+    radial-gradient(130% 130% at 85% 90%, #1e3a8a 0%, transparent 60%),
+    linear-gradient(160deg, #1E3A8A 0%, #1d3a8f 35%, #2563EB 100%);
+  color: #fff;
+  isolation: isolate;
+}
+
+/* Ambient grid texture, signature backdrop for the "stacks" motif */
+.auth-showcase::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.12;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.5) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at 30% 20%, black 0%, transparent 70%);
+}
+
+.auth-showcase > * {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+.auth-brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+
+.auth-brand-mark .bi {
+  font-size: 19px;
+}
+
+.auth-showcase-copy {
+  max-width: 460px;
+}
+
+.auth-showcase-copy h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 2.6vw, 2.5rem);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.9rem;
+}
+
+.auth-showcase-copy p {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 1.02rem;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+/* Illustration: layered "open book / shelving" composition, animated on load */
+.stack-illustration {
+  position: relative;
+  height: 230px;
+  margin: 1.75rem 0 0.5rem;
+}
+
+.stack-illustration svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.shelf-book {
+  transform-origin: bottom center;
+  animation: book-rise 700ms var(--ease-standard) both;
+}
+
+@keyframes book-rise {
+  from { opacity: 0; transform: translateY(18px) scaleY(0.9); }
+  to { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+
+.float-chip {
+  animation: chip-float 5.5s ease-in-out infinite;
+}
+
+@keyframes chip-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+/* Floating glass stat card, the "signature" element for this screen */
+.glass-stat-card {
+  position: absolute;
+  right: 3.25rem;
+  bottom: 4.75rem;
+  width: 216px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.1rem;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 12px 32px rgba(11, 22, 60, 0.35);
+  animation: chip-float 6.5s ease-in-out infinite;
+  animation-delay: 0.4s;
+}
+
+.glass-stat-card .stat-value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.55rem;
+  letter-spacing: -0.02em;
+}
+
+.glass-stat-card .stat-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.auth-showcase-footer {
+  display: flex;
+  gap: 2.25rem;
+}
+
+.auth-showcase-footer .metric-value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.auth-showcase-footer .metric-label {
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+/* -------------------------------------------------------------------- */
+/* RIGHT — auth form panel                                              */
+/* -------------------------------------------------------------------- */
+.auth-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  animation: card-in 520ms var(--ease-standard) both;
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-card-header h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+}
+
+.auth-card-header p {
+  color: var(--color-muted);
+  font-size: 14.5px;
+}
+
+/* Role selector — segmented pill control */
+.role-select {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: #F1F5F9;
+  padding: 5px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.role-option {
+  position: relative;
+}
+
+.role-option input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.role-option label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0.55rem 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.role-option label .bi {
+  font-size: 17px;
+}
+
+.role-option input:checked + label {
+  background: #fff;
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.role-option input:focus-visible + label {
+  box-shadow: var(--shadow-focus);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-muted);
+  font-size: 12.5px;
+  margin: 1.4rem 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.auth-footnote {
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--color-muted);
+  margin-top: 1.5rem;
+}
+
+.security-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--color-muted);
+  background: #F8FAFC;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.8rem;
+  margin-top: 1.1rem;
+}
+
+.security-note .bi {
+  color: var(--color-success);
+  font-size: 15px;
+  margin-top: 1px;
+}
+
+/* Submit button loading state */
+.btn-submit {
+  width: 100%;
+  padding: 0.72rem 1rem;
+  font-size: 15px;
+}
+
+.btn-submit .spinner-border {
+  width: 1rem;
+  height: 1rem;
+  border-width: 2px;
+  display: none;
+}
+
+.btn-submit.is-loading .btn-submit-label {
+  opacity: 0;
+}
+
+.btn-submit.is-loading .spinner-border {
+  display: inline-block;
+  position: absolute;
+}
+
+.btn-submit {
+  position: relative;
+}
+
+/* Responsive ------------------------------------------------------------ */
+@media (max-width: 991.98px) {
+  .auth-showcase {
+    display: none;
+  }
+  .auth-panel {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .role-option label {
+    font-size: 11.5px;
+    padding: 0.5rem 0.2rem 0.55rem;
+  }
+  .role-option label .bi {
+    font-size: 15px;
+  }
+}

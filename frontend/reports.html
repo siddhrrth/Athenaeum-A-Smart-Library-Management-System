@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <title>Library Analytical Reports · Athenaeum Library Management System</title>
+  <meta name="description" content="Circulation metrics, catalog health, member distributions, and analytical reporting.">
+
+  <!-- Self-hosted fonts, Bootstrap and icons — no CDN calls, works fully offline -->
+  <link rel="stylesheet" href="assets/vendor/inter/inter.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+
+  <style>
+    @media print {
+      .sidebar, .topbar, .btn-print, .btn-export, #apiStatusBadge {
+        display: none !important;
+      }
+      .main-col {
+        background: #fff !important;
+      }
+      .panel-card, .stat-card {
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+        break-inside: avoid;
+      }
+    }
+    .metric-progress {
+      height: 6px;
+      border-radius: var(--radius-pill);
+      background: #E5E9F0;
+      overflow: hidden;
+      width: 80px;
+    }
+    .metric-progress-bar {
+      height: 100%;
+      border-radius: var(--radius-pill);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell" id="appShell">
+
+    <!-- Mobile sidebar backdrop -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-brand-mark"><i class="bi bi-book-half"></i></span>
+        <span class="sidebar-brand-label">Athenaeum</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Overview</div>
+        <a href="dashboard.html" class="nav-item">
+          <i class="bi bi-grid-1x2"></i>
+          <span class="nav-label">Dashboard</span>
+        </a>
+
+        <div class="sidebar-section-label">Catalog &amp; circulation</div>
+        <a href="books.html" class="nav-item">
+          <i class="bi bi-journal-bookmark"></i>
+          <span class="nav-label">Books</span>
+        </a>
+        <a href="members.html" class="nav-item">
+          <i class="bi bi-people"></i>
+          <span class="nav-label">Members</span>
+        </a>
+        <a href="issue-book.html" class="nav-item">
+          <i class="bi bi-box-arrow-up-right"></i>
+          <span class="nav-label">Issue books</span>
+        </a>
+        <a href="return-book.html" class="nav-item">
+          <i class="bi bi-box-arrow-in-down-left"></i>
+          <span class="nav-label">Return books</span>
+        </a>
+        <a href="reservations.html" class="nav-item">
+          <i class="bi bi-bookmark-star"></i>
+          <span class="nav-label">Reservations</span>
+          <span class="badge-count">6</span>
+        </a>
+        <a href="fines.html" class="nav-item">
+          <i class="bi bi-cash-coin"></i>
+          <span class="nav-label">Fine management</span>
+        </a>
+
+        <div class="sidebar-section-label">Insights</div>
+        <a href="reports.html" class="nav-item active">
+          <i class="bi bi-bar-chart-line"></i>
+          <span class="nav-label">Reports</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="bi bi-bell"></i>
+          <span class="nav-label">Notifications</span>
+          <span class="badge-count">3</span>
+        </a>
+
+        <div class="sidebar-section-label">Account</div>
+        <a href="profile.html" class="nav-item">
+          <i class="bi bi-gear"></i>
+          <span class="nav-label">Settings</span>
+        </a>
+        <a href="#" class="nav-item" data-action="logout">
+          <i class="bi bi-box-arrow-left"></i>
+          <span class="nav-label">Logout</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar" data-user-initials>AN</div>
+          <div class="sidebar-user-meta">
+            <div class="name" data-user-name>Amrita Nair</div>
+            <div class="role" data-user-role>Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================= MAIN COLUMN ================= -->
+    <div class="main-col">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <button class="sidebar-toggle-btn d-none d-lg-flex" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
+          <i class="bi bi-layout-sidebar-inset"></i>
+        </button>
+        <button class="sidebar-toggle-btn d-lg-none" id="sidebarMobileBtn" aria-label="Open menu">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <div class="topbar-search">
+          <i class="bi bi-search"></i>
+          <input type="text" id="topbarSearchInput" placeholder="Search reports, metrics, categories…" aria-label="Search">
+        </div>
+
+        <div class="topbar-actions">
+          <button class="dark-toggle" id="darkModeToggle" aria-label="Toggle dark mode">
+            <span class="knob"><i class="bi bi-moon-stars-fill" style="font-size:10px"></i></span>
+          </button>
+          <button class="topbar-icon-btn" aria-label="Messages">
+            <i class="bi bi-chat-dots"></i>
+          </button>
+          <button class="topbar-icon-btn" aria-label="Notifications">
+            <i class="bi bi-bell"></i>
+            <span class="ping-dot"></span>
+          </button>
+
+          <div class="dropdown">
+            <button class="topbar-profile" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="topbar-profile-avatar" data-user-initials>AN</span>
+              <span class="d-none d-md-block text-start">
+                <span class="topbar-profile-name d-block" data-user-name>Amrita Nair</span>
+                <span class="topbar-profile-role" data-user-role>Admin</span>
+              </span>
+              <i class="bi bi-chevron-down" style="font-size:12px; color:var(--color-muted)"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2" style="border-radius:12px; border-color:var(--color-border)">
+              <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i>My profile</a></li>
+              <li><a class="dropdown-item" href="profile.html"><i class="bi bi-gear me-2"></i>Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" data-action="logout"><i class="bi bi-box-arrow-left me-2"></i>Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page content -->
+      <main class="page-content">
+
+        <!-- Page heading -->
+        <div class="page-heading">
+          <div>
+            <h1>Library Analytical Reports</h1>
+            <p>Comprehensive audit of circulation velocity, collection health, and membership distribution.</p>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-outline-subtle btn-print" id="btnPrintReport">
+              <i class="bi bi-printer me-1"></i> Print
+            </button>
+            <button class="btn btn-outline-subtle btn-export" id="btnExportCSV">
+              <i class="bi bi-download me-1"></i> Export CSV
+            </button>
+            <button class="btn btn-primary" id="btnRefreshStats">
+              <i class="bi bi-arrow-clockwise me-1"></i> Sync Live Data
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= STAT CARDS FROM /backend/api/dashboard/stats ================= -->
+        <div class="stat-grid">
+          <!-- 1. Total Books -->
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-primary"><i class="bi bi-journal-bookmark"></i></span>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>Catalog</span>
+            </div>
+            <div class="stat-value" data-stat="total_books" id="statTotalBooks">12,480</div>
+            <div class="stat-label">Total Books</div>
+          </div>
+
+          <!-- 2. Total Members -->
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-secondary"><i class="bi bi-people"></i></span>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>Patrons</span>
+            </div>
+            <div class="stat-value" data-stat="total_members" id="statTotalMembers">3,214</div>
+            <div class="stat-label">Total Members</div>
+          </div>
+
+          <!-- 3. Books Currently Issued -->
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-accent"><i class="bi bi-box-arrow-up-right"></i></span>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>Circulating</span>
+            </div>
+            <div class="stat-value" data-stat="issued_books" id="statIssuedBooks">3,842</div>
+            <div class="stat-label">Books Currently Issued</div>
+          </div>
+
+          <!-- 4. Overdue Transactions -->
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-danger"><i class="bi bi-exclamation-triangle"></i></span>
+              <span class="stat-trend down"><i class="bi bi-arrow-down-short"></i>Attention</span>
+            </div>
+            <div class="stat-value" data-stat="overdue_count" id="statOverdueCount">96</div>
+            <div class="stat-label">Overdue Transactions</div>
+          </div>
+
+          <!-- 5. Total Fines Collected -->
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-success"><i class="bi bi-cash-coin"></i></span>
+              <span class="stat-trend up"><i class="bi bi-arrow-up-short"></i>Recovered</span>
+            </div>
+            <div class="stat-value" data-stat="total_fines_collected" id="statTotalFines">₹18,450</div>
+            <div class="stat-label">Total Fines Collected</div>
+          </div>
+
+          <!-- 6. Pending Returns -->
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-primary"><i class="bi bi-hourglass-split"></i></span>
+              <span class="stat-trend down"><i class="bi bi-arrow-down-short"></i>Due Soon</span>
+            </div>
+            <div class="stat-value" data-stat="pending_returns" id="statPendingReturns">128</div>
+            <div class="stat-label">Pending Returns</div>
+          </div>
+
+          <!-- Available Books -->
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-success"><i class="bi bi-check2-circle"></i></span>
+              <span class="stat-trend up"><i class="bi bi-check-lg"></i>On Shelf</span>
+            </div>
+            <div class="stat-value" data-stat="available_books" id="statAvailableBooks">8,214</div>
+            <div class="stat-label">Available Books</div>
+          </div>
+
+          <!-- Active Reservations -->
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-icon tone-warning"><i class="bi bi-bookmark-star"></i></span>
+              <span class="stat-trend up"><i class="bi bi-clock-history"></i>Queued</span>
+            </div>
+            <div class="stat-value" data-stat="active_reservations" id="statActiveReservations">224</div>
+            <div class="stat-label">Active Reservations</div>
+          </div>
+        </div>
+
+        <!-- ================= VISUAL CHARTS ROW ================= -->
+        <div class="chart-grid mb-4">
+          <div class="panel-card" style="margin-bottom:0">
+            <div class="chart-card-header">
+              <div>
+                <h2>Annual Circulation Dynamics</h2>
+                <span class="subtitle">Monthly checkout velocity vs. returns across quarters</span>
+              </div>
+            </div>
+            <div style="height:230px">
+              <canvas id="reportCirculationChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#2563EB"></span>Books Checked Out</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#10B981"></span>Returns Processed</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#EF4444"></span>Overdue Notices</span>
+            </div>
+          </div>
+
+          <div class="panel-card" style="margin-bottom:0">
+            <div class="chart-card-header">
+              <div>
+                <h2>Catalog Allocation by Genre</h2>
+                <span class="subtitle">Percentage distribution across core academic streams</span>
+              </div>
+            </div>
+            <div style="height:230px">
+              <canvas id="reportCategoryChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#2563EB"></span>Computer Science</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#3B82F6"></span>Engineering</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#93C5FD"></span>Pure Sciences</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#10B981"></span>Literature</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#F59E0B"></span>Management</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= BREAKDOWN TABLE 1: CATALOG STATUS ================= -->
+        <div class="panel-card mb-4">
+          <div class="panel-card-header flex-wrap gap-2">
+            <div>
+              <h2>Catalog Status &amp; Utilization Breakdown</h2>
+              <span class="subtitle text-muted-custom" style="font-size: 12.5px;">Detailed inventory allocation, borrowing frequency, and stock velocity by department</span>
+            </div>
+            <div>
+              <span class="badge bg-light text-primary border" style="font-size: 11.5px;">
+                <i class="bi bi-layers me-1"></i>6 Key Disciplines
+              </span>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto">
+            <table class="table-activity" id="catalogBreakdownTable">
+              <thead>
+                <tr>
+                  <th>Department / Subject</th>
+                  <th>Total Titles</th>
+                  <th>Total Copies</th>
+                  <th>Available</th>
+                  <th>Issued</th>
+                  <th>Reserved</th>
+                  <th>Utilization</th>
+                  <th style="text-align: right;">Inventory Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="stat-icon tone-primary" style="width:28px; height:28px; font-size:13px;"><i class="bi bi-laptop"></i></span>
+                      <strong class="text-dark">Computer Science &amp; IT</strong>
+                    </div>
+                  </td>
+                  <td>1,840</td>
+                  <td>3,450</td>
+                  <td>1,020</td>
+                  <td>2,240</td>
+                  <td>190</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="metric-progress">
+                        <div class="metric-progress-bar bg-primary" style="width: 65%;"></div>
+                      </div>
+                      <span style="font-size:12px; font-weight:600;">65%</span>
+                    </div>
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="badge-status issued"><i class="bi bi-fire me-1"></i>High Demand</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="stat-icon tone-accent" style="width:28px; height:28px; font-size:13px;"><i class="bi bi-gear-wide-connected"></i></span>
+                      <strong class="text-dark">Engineering &amp; Technology</strong>
+                    </div>
+                  </td>
+                  <td>2,150</td>
+                  <td>3,920</td>
+                  <td>2,410</td>
+                  <td>1,380</td>
+                  <td>130</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="metric-progress">
+                        <div class="metric-progress-bar bg-info" style="width: 35%;"></div>
+                      </div>
+                      <span style="font-size:12px; font-weight:600;">35%</span>
+                    </div>
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="badge-status returned"><i class="bi bi-check2 me-1"></i>Optimal</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="stat-icon tone-success" style="width:28px; height:28px; font-size:13px;"><i class="bi bi-atom"></i></span>
+                      <strong class="text-dark">Pure Sciences &amp; Math</strong>
+                    </div>
+                  </td>
+                  <td>1,420</td>
+                  <td>2,180</td>
+                  <td>1,590</td>
+                  <td>540</td>
+                  <td>50</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="metric-progress">
+                        <div class="metric-progress-bar bg-success" style="width: 25%;"></div>
+                      </div>
+                      <span style="font-size:12px; font-weight:600;">25%</span>
+                    </div>
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="badge-status returned"><i class="bi bi-check2 me-1"></i>Optimal</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="stat-icon tone-warning" style="width:28px; height:28px; font-size:13px;"><i class="bi bi-book"></i></span>
+                      <strong class="text-dark">Literature, Fiction &amp; Arts</strong>
+                    </div>
+                  </td>
+                  <td>1,980</td>
+                  <td>2,840</td>
+                  <td>1,820</td>
+                  <td>940</td>
+                  <td>80</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="metric-progress">
+                        <div class="metric-progress-bar bg-warning" style="width: 33%;"></div>
+                      </div>
+                      <span style="font-size:12px; font-weight:600;">33%</span>
+                    </div>
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="badge-status returned"><i class="bi bi-check2 me-1"></i>Healthy</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="stat-icon tone-secondary" style="width:28px; height:28px; font-size:13px;"><i class="bi bi-briefcase"></i></span>
+                      <strong class="text-dark">Management &amp; Economics</strong>
+                    </div>
+                  </td>
+                  <td>920</td>
+                  <td>1,460</td>
+                  <td>810</td>
+                  <td>610</td>
+                  <td>40</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="metric-progress">
+                        <div class="metric-progress-bar bg-primary" style="width: 42%;"></div>
+                      </div>
+                      <span style="font-size:12px; font-weight:600;">42%</span>
+                    </div>
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="badge-status returned"><i class="bi bi-check2 me-1"></i>Optimal</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="stat-icon tone-danger" style="width:28px; height:28px; font-size:13px;"><i class="bi bi-journal-medical"></i></span>
+                      <strong class="text-dark">Medical &amp; Life Sciences</strong>
+                    </div>
+                  </td>
+                  <td>640</td>
+                  <td>1,090</td>
+                  <td>340</td>
+                  <td>710</td>
+                  <td>40</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="metric-progress">
+                        <div class="metric-progress-bar bg-danger" style="width: 65%;"></div>
+                      </div>
+                      <span style="font-size:12px; font-weight:600;">65%</span>
+                    </div>
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="badge-status overdue"><i class="bi bi-arrow-up-right me-1"></i>Low Stock</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ================= BREAKDOWN TABLE 2: MEMBER DISTRIBUTION ================= -->
+        <div class="panel-card mb-3">
+          <div class="panel-card-header flex-wrap gap-2">
+            <div>
+              <h2>Member Distribution &amp; Borrowing Activity</h2>
+              <span class="subtitle text-muted-custom" style="font-size: 12.5px;">Patron classifications, borrowing volume, compliance standing, and overdue liabilities</span>
+            </div>
+            <div>
+              <span class="badge bg-light text-secondary border" style="font-size: 11.5px;">
+                <i class="bi bi-people-fill me-1"></i>All Active Patron Groups
+              </span>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto">
+            <table class="table-activity" id="memberDistributionTable">
+              <thead>
+                <tr>
+                  <th>Membership Tier / Category</th>
+                  <th>Enrolled Patrons</th>
+                  <th>Active Borrowers</th>
+                  <th>Books Held</th>
+                  <th>Overdue Accounts</th>
+                  <th>Outstanding Fines</th>
+                  <th>Quota Used</th>
+                  <th style="text-align: right;">Standing</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="row-avatar" style="font-size:10px; width:28px; height:28px; background:var(--color-primary)">UG</span>
+                      <strong class="text-dark">Undergraduate Students</strong>
+                    </div>
+                  </td>
+                  <td>1,980</td>
+                  <td>1,420</td>
+                  <td>2,110</td>
+                  <td>58</td>
+                  <td><span class="fw-semibold text-danger">₹4,250</span></td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="metric-progress">
+                        <div class="metric-progress-bar bg-primary" style="width: 71%;"></div>
+                      </div>
+                      <span style="font-size:12px; font-weight:600;">71%</span>
+                    </div>
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="badge-status returned"><i class="bi bi-shield-check me-1"></i>Good Standing</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="row-avatar" style="font-size:10px; width:28px; height:28px; background:var(--color-accent)">PG</span>
+                      <strong class="text-dark">Postgraduate Scholars</strong>
+                    </div>
+                  </td>
+                  <td>680</td>
+                  <td>510</td>
+                  <td>940</td>
+                  <td>22</td>
+                  <td><span class="fw-semibold text-danger">₹1,850</span></td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="metric-progress">
+                        <div class="metric-progress-bar bg-info" style="width: 62%;"></div>
+                      </div>
+                      <span style="font-size:12px; font-weight:600;">62%</span>
+                    </div>
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="badge-status returned"><i class="bi bi-shield-check me-1"></i>Good Standing</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="row-avatar" style="font-size:10px; width:28px; height:28px; background:var(--color-secondary)">FC</span>
+                      <strong class="text-dark">Faculty &amp; Teaching Staff</strong>
+                    </div>
+                  </td>
+                  <td>240</td>
+                  <td>195</td>
+                  <td>580</td>
+                  <td>6</td>
+                  <td><span class="fw-semibold text-muted">₹0 (Waived)</span></td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="metric-progress">
+                        <div class="metric-progress-bar bg-secondary" style="width: 48%;"></div>
+                      </div>
+                      <span style="font-size:12px; font-weight:600;">48%</span>
+                    </div>
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="badge-status returned"><i class="bi bi-star-fill me-1"></i>Privileged</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="row-avatar" style="font-size:10px; width:28px; height:28px; background:var(--color-warning)">RS</span>
+                      <strong class="text-dark">Doctoral Researchers (Ph.D.)</strong>
+                    </div>
+                  </td>
+                  <td>180</td>
+                  <td>142</td>
+                  <td>390</td>
+                  <td>8</td>
+                  <td><span class="fw-semibold text-danger">₹650</span></td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="metric-progress">
+                        <div class="metric-progress-bar bg-warning" style="width: 54%;"></div>
+                      </div>
+                      <span style="font-size:12px; font-weight:600;">54%</span>
+                    </div>
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="badge-status returned"><i class="bi bi-shield-check me-1"></i>Good Standing</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="row-avatar" style="font-size:10px; width:28px; height:28px; background:var(--color-muted)">AL</span>
+                      <strong class="text-dark">Alumni &amp; External Fellows</strong>
+                    </div>
+                  </td>
+                  <td>134</td>
+                  <td>65</td>
+                  <td>82</td>
+                  <td>2</td>
+                  <td><span class="fw-semibold text-danger">₹120</span></td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="metric-progress">
+                        <div class="metric-progress-bar bg-secondary" style="width: 24%;"></div>
+                      </div>
+                      <span style="font-size:12px; font-weight:600;">24%</span>
+                    </div>
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="badge-status returned"><i class="bi bi-shield-check me-1"></i>Good Standing</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Connection Badge Footer -->
+        <div class="d-flex align-items-center justify-content-between pt-2 pb-4 text-muted" style="font-size:12.5px;">
+          <span>Generated by Athenaeum Analytics Suite · Real-time operational data</span>
+          <span id="apiStatusBadge" class="badge bg-light text-muted border">Connecting to /backend/api/dashboard/stats</span>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" id="appToastContainer" style="z-index: 1080;"></div>
+
+  <!-- Self-hosted Bootstrap Bundle + Chart.js -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/chartjs/chart.umd.min.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Page Script -->
+  <script>
+  (function () {
+    'use strict';
+
+    var API_RELATIVE = '/backend/api/dashboard/stats';
+    var API_ABSOLUTE = 'http://localhost:8081/backend/api/dashboard/stats';
+
+    // Toast helper
+    function notify(message, variant) {
+      if (window.AppUI && window.AppUI.showToast) {
+        window.AppUI.showToast(message, variant);
+        return;
+      }
+      var container = document.getElementById('appToastContainer');
+      var toastEl = document.createElement('div');
+      toastEl.className = 'toast align-items-center border-0 shadow-sm mb-2 text-white bg-' + (variant === 'danger' ? 'danger' : (variant === 'success' ? 'success' : 'primary'));
+      toastEl.setAttribute('role', 'status');
+      toastEl.setAttribute('aria-live', 'polite');
+      toastEl.style.borderRadius = '12px';
+      toastEl.innerHTML = '<div class="d-flex"><div class="toast-body">' + message + '</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>';
+      container.appendChild(toastEl);
+      var toast = new bootstrap.Toast(toastEl, { delay: 3500 });
+      toast.show();
+      toastEl.addEventListener('hidden.bs.toast', function () { toastEl.remove(); });
+    }
+
+    // Initialize UI Shell
+    function initShell() {
+      // Sidebar collapse
+      var shell = document.getElementById('appShell');
+      var collapseBtn = document.getElementById('sidebarCollapseBtn');
+      var mobileBtn = document.getElementById('sidebarMobileBtn');
+      var overlay = document.getElementById('sidebarOverlay');
+
+      if (collapseBtn) {
+        collapseBtn.addEventListener('click', function () {
+          shell.classList.toggle('sidebar-collapsed');
+        });
+      }
+      if (mobileBtn) {
+        mobileBtn.addEventListener('click', function () {
+          shell.classList.add('sidebar-mobile-open');
+        });
+      }
+      if (overlay) {
+        overlay.addEventListener('click', function () {
+          shell.classList.remove('sidebar-mobile-open');
+        });
+      }
+
+      // Dark mode toggle
+      var darkModeToggle = document.getElementById('darkModeToggle');
+      if (darkModeToggle) {
+        if (localStorage.getItem('athenaeum_theme') === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          darkModeToggle.classList.add('is-dark');
+        }
+        darkModeToggle.addEventListener('click', function () {
+          var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (isDark) {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('athenaeum_theme', 'light');
+            darkModeToggle.classList.remove('is-dark');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('athenaeum_theme', 'dark');
+            darkModeToggle.classList.add('is-dark');
+          }
+        });
+      }
+
+      // Profile load from storage
+      var session = null;
+      try {
+        var raw = localStorage.getItem('athenaeum_session') || sessionStorage.getItem('athenaeum_session');
+        if (raw) session = JSON.parse(raw);
+      } catch (e) {}
+
+      var name = (session && session.name) || 'Amrita Nair';
+      var role = (session && session.role) || 'Admin';
+      var initials = name.split(' ').map(function (p) { return p[0]; }).join('').slice(0, 2).toUpperCase();
+
+      document.querySelectorAll('[data-user-name]').forEach(function (el) { el.textContent = name; });
+      document.querySelectorAll('[data-user-role]').forEach(function (el) { el.textContent = role.charAt(0).toUpperCase() + role.slice(1); });
+      document.querySelectorAll('[data-user-initials]').forEach(function (el) { el.textContent = initials; });
+
+      // Logout handler
+      document.querySelectorAll('[data-action="logout"]').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+          e.preventDefault();
+          localStorage.removeItem('athenaeum_session');
+          sessionStorage.removeItem('athenaeum_session');
+          window.location.href = 'login.html';
+        });
+      });
+
+      // Print button
+      var printBtn = document.getElementById('btnPrintReport');
+      if (printBtn) {
+        printBtn.addEventListener('click', function () {
+          window.print();
+        });
+      }
+
+      // Export CSV
+      var exportBtn = document.getElementById('btnExportCSV');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', function () {
+          exportTablesAsCSV();
+        });
+      }
+
+      // Refresh Stats button
+      var refreshBtn = document.getElementById('btnRefreshStats');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', function () {
+          fetchLiveStats();
+          notify('Refreshed analytical metrics from server.', 'primary');
+        });
+      }
+    }
+
+    // Export CSV feature
+    function exportTablesAsCSV() {
+      var csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "ATHENAEUM LIBRARY MANAGEMENT SYSTEM - ANALYTICAL REPORT\n";
+      csvContent += "Generated Date," + new Date().toISOString() + "\n\n";
+
+      // Summary Stats
+      csvContent += "1. SUMMARY METRICS\n";
+      csvContent += "Total Books," + document.getElementById('statTotalBooks').textContent + "\n";
+      csvContent += "Total Members," + document.getElementById('statTotalMembers').textContent + "\n";
+      csvContent += "Books Currently Issued," + document.getElementById('statIssuedBooks').textContent + "\n";
+      csvContent += "Overdue Transactions," + document.getElementById('statOverdueCount').textContent + "\n";
+      csvContent += "Total Fines Collected," + document.getElementById('statTotalFines').textContent + "\n";
+      csvContent += "Pending Returns," + document.getElementById('statPendingReturns').textContent + "\n\n";
+
+      // Catalog Table
+      csvContent += "2. CATALOG BREAKDOWN BY DEPARTMENT\n";
+      csvContent += "Department,Total Titles,Total Copies,Available,Issued,Reserved,Utilization\n";
+      var rows1 = document.querySelectorAll('#catalogBreakdownTable tbody tr');
+      rows1.forEach(function (tr) {
+        var cols = tr.querySelectorAll('td');
+        var dept = cols[0].textContent.trim();
+        var titles = cols[1].textContent.trim();
+        var copies = cols[2].textContent.trim();
+        var avail = cols[3].textContent.trim();
+        var issued = cols[4].textContent.trim();
+        var res = cols[5].textContent.trim();
+        var util = cols[6].textContent.trim();
+        csvContent += '"' + dept + '",' + titles + ',' + copies + ',' + avail + ',' + issued + ',' + res + ',"' + util + '"\n';
+      });
+
+      csvContent += "\n3. MEMBER DISTRIBUTION\n";
+      csvContent += "Membership Tier,Enrolled,Active Borrowers,Books Held,Overdue Accounts,Outstanding Fines\n";
+      var rows2 = document.querySelectorAll('#memberDistributionTable tbody tr');
+      rows2.forEach(function (tr) {
+        var cols = tr.querySelectorAll('td');
+        var tier = cols[0].textContent.trim();
+        var enrolled = cols[1].textContent.trim();
+        var active = cols[2].textContent.trim();
+        var held = cols[3].textContent.trim();
+        var overdue = cols[4].textContent.trim();
+        var fines = cols[5].textContent.trim();
+        csvContent += '"' + tier + '",' + enrolled + ',' + active + ',' + held + ',' + overdue + ',"' + fines + '"\n';
+      });
+
+      var encodedUri = encodeURI(csvContent);
+      var link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "athenaeum_analytics_report_" + new Date().toISOString().slice(0, 10) + ".csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      notify('Report successfully exported to CSV.', 'success');
+    }
+
+    // Initialize Charts
+    function initCharts() {
+      if (typeof Chart === 'undefined') return;
+
+      Chart.defaults.font.family = "'Inter', sans-serif";
+      Chart.defaults.color = '#6B7280';
+
+      // Circulation Dynamics Chart
+      var circCtx = document.getElementById('reportCirculationChart');
+      if (circCtx) {
+        new Chart(circCtx, {
+          type: 'line',
+          data: {
+            labels: ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+            datasets: [
+              {
+                label: 'Books Issued',
+                data: [380, 410, 395, 420, 486, 455, 512, 498, 560, 530, 545, 580],
+                borderColor: '#2563EB',
+                backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                tension: 0.35,
+                fill: true,
+                pointRadius: 3,
+                pointBackgroundColor: '#2563EB'
+              },
+              {
+                label: 'Books Returned',
+                data: [360, 390, 385, 390, 452, 430, 470, 465, 521, 510, 520, 540],
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.06)',
+                tension: 0.35,
+                fill: true,
+                pointRadius: 3,
+                pointBackgroundColor: '#10B981'
+              },
+              {
+                label: 'Overdue Notices',
+                data: [45, 52, 48, 60, 72, 65, 80, 75, 96, 88, 92, 96],
+                borderColor: '#EF4444',
+                backgroundColor: 'transparent',
+                borderDash: [4, 4],
+                tension: 0.2,
+                pointRadius: 2,
+                pointBackgroundColor: '#EF4444'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { grid: { color: '#F1F5F9' }, ticks: { stepSize: 150 } },
+              x: { grid: { display: false } }
+            }
+          }
+        });
+      }
+
+      // Catalog Distribution Doughnut
+      var catCtx = document.getElementById('reportCategoryChart');
+      if (catCtx) {
+        new Chart(catCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Computer Science', 'Engineering', 'Pure Sciences', 'Literature', 'Management'],
+            datasets: [{
+              data: [28, 31, 18, 14, 9],
+              backgroundColor: ['#2563EB', '#3B82F6', '#93C5FD', '#10B981', '#F59E0B'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '66%',
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+    }
+
+    // Fetch live summary stats from /backend/api/dashboard/stats
+    function fetchLiveStats() {
+      var badge = document.getElementById('apiStatusBadge');
+      badge.className = 'badge bg-light text-muted border';
+      badge.textContent = 'Syncing stats from server…';
+
+      var candidateUrls = [
+        API_RELATIVE,
+        API_ABSOLUTE
+      ];
+
+      function tryFetch(index) {
+        if (index >= candidateUrls.length) {
+          badge.className = 'badge bg-warning-subtle text-warning border';
+          badge.textContent = 'Backend offline · Base metrics active';
+          return;
+        }
+
+        fetch(candidateUrls[index])
+          .then(function (res) {
+            if (res.ok) return res.json();
+            throw new Error('Status: ' + res.status);
+          })
+          .then(function (data) {
+            if (data && (data.success || data.stats || data.total_books)) {
+              var stats = data.stats || data;
+              badge.className = 'badge bg-success-subtle text-success border';
+              badge.textContent = 'Live connected: ' + candidateUrls[index];
+
+              // Map each stat value
+              var mapping = {
+                total_books: 'statTotalBooks',
+                total_members: 'statTotalMembers',
+                issued_books: 'statIssuedBooks',
+                overdue_count: 'statOverdueCount',
+                total_fines_collected: 'statTotalFines',
+                pending_returns: 'statPendingReturns',
+                available_books: 'statAvailableBooks',
+                active_reservations: 'statActiveReservations'
+              };
+
+              Object.keys(mapping).forEach(function (key) {
+                var el = document.getElementById(mapping[key]);
+                if (el && stats[key] !== undefined) {
+                  if (key === 'total_fines_collected') {
+                    el.textContent = '₹' + Number(stats[key]).toLocaleString('en-IN');
+                  } else {
+                    el.textContent = Number(stats[key]).toLocaleString('en-IN');
+                  }
+                }
+              });
+            }
+          })
+          .catch(function () {
+            tryFetch(index + 1);
+          });
+      }
+
+      tryFetch(0);
+    }
+
+    // Filter tables on search
+    function initSearch() {
+      var searchInput = document.getElementById('topbarSearchInput');
+      if (!searchInput) return;
+
+      searchInput.addEventListener('input', function () {
+        var query = searchInput.value.toLowerCase().trim();
+
+        // Search catalog breakdown table
+        var catRows = document.querySelectorAll('#catalogBreakdownTable tbody tr');
+        catRows.forEach(function (row) {
+          var text = row.textContent.toLowerCase();
+          row.style.display = text.includes(query) ? '' : 'none';
+        });
+
+        // Search member distribution table
+        var memRows = document.querySelectorAll('#memberDistributionTable tbody tr');
+        memRows.forEach(function (row) {
+          var text = row.textContent.toLowerCase();
+          row.style.display = text.includes(query) ? '' : 'none';
+        });
+      });
+    }
+
+    // Startup
+    document.addEventListener('DOMContentLoaded', function () {
+      initShell();
+      initCharts();
+      initSearch();
+      fetchLiveStats();
+    });
+  })();
+  </script>
+</body>
+</html>

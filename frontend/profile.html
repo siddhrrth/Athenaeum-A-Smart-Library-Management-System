@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <title>User Profile · Athenaeum</title>
+  <link rel="stylesheet" href="assets/vendor/inter/inter.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-brand-mark"><i class="bi bi-book-half"></i></span>
+        <span class="sidebar-brand-label">Athenaeum</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Overview</div>
+        <a href="dashboard.html" class="nav-item">
+          <i class="bi bi-grid-1x2"></i>
+          <span class="nav-label">Dashboard</span>
+        </a>
+        <div class="sidebar-section-label">Catalog &amp; circulation</div>
+        <a href="books.html" class="nav-item">
+          <i class="bi bi-journal-bookmark"></i>
+          <span class="nav-label">Books</span>
+        </a>
+        <a href="members.html" class="nav-item">
+          <i class="bi bi-people"></i>
+          <span class="nav-label">Members</span>
+        </a>
+        <a href="issue-book.html" class="nav-item">
+          <i class="bi bi-box-arrow-up-right"></i>
+          <span class="nav-label">Issue books</span>
+        </a>
+        <a href="return-book.html" class="nav-item">
+          <i class="bi bi-box-arrow-in-down-left"></i>
+          <span class="nav-label">Return books</span>
+        </a>
+        <a href="reservations.html" class="nav-item">
+          <i class="bi bi-bookmark-star"></i>
+          <span class="nav-label">Reservations</span>
+        </a>
+        <a href="fines.html" class="nav-item">
+          <i class="bi bi-cash-coin"></i>
+          <span class="nav-label">Fine management</span>
+        </a>
+        <div class="sidebar-section-label">Insights</div>
+        <a href="reports.html" class="nav-item">
+          <i class="bi bi-bar-chart-line"></i>
+          <span class="nav-label">Reports</span>
+        </a>
+        <div class="sidebar-section-label">Account</div>
+        <a href="profile.html" class="nav-item active">
+          <i class="bi bi-gear"></i>
+          <span class="nav-label">Settings / Profile</span>
+        </a>
+        <a href="#" class="nav-item" data-action="logout">
+          <i class="bi bi-box-arrow-left"></i>
+          <span class="nav-label">Logout</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar" data-user-initials>AN</div>
+          <div class="sidebar-user-meta">
+            <div class="name" data-user-name>Admin User</div>
+            <div class="role" data-user-role>Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-col">
+      <header class="topbar">
+        <button class="sidebar-toggle-btn d-none d-lg-flex" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
+          <i class="bi bi-layout-sidebar-inset"></i>
+        </button>
+        <button class="sidebar-toggle-btn d-lg-none" id="sidebarMobileBtn" aria-label="Open menu">
+          <i class="bi bi-list"></i>
+        </button>
+        <div class="topbar-search">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Search..." aria-label="Search">
+        </div>
+        <div class="topbar-actions">
+          <button class="dark-toggle" id="darkModeToggle" aria-label="Toggle dark mode">
+            <span class="knob"><i class="bi bi-moon-stars-fill" style="font-size:10px"></i></span>
+          </button>
+          <div class="dropdown">
+            <button class="topbar-profile" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="topbar-profile-avatar" data-user-initials>AN</span>
+              <span class="d-none d-md-block text-start">
+                <span class="topbar-profile-name d-block" data-user-name>Admin User</span>
+                <span class="topbar-profile-role" data-user-role>Admin</span>
+              </span>
+              <i class="bi bi-chevron-down" style="font-size:12px; color:var(--color-muted)"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2">
+              <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i>My profile</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" data-action="logout"><i class="bi bi-box-arrow-left me-2"></i>Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <main class="page-content">
+        <div class="page-heading">
+          <div>
+            <h1>Profile &amp; Account Settings</h1>
+            <p>View your active role, session status, and database connection details.</p>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="panel-card p-4">
+              <h3 class="mb-3">User Profile</h3>
+              <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="sidebar-user-avatar" style="width:56px; height:56px; font-size:20px;" data-user-initials>AN</div>
+                <div>
+                  <h4 class="mb-0" data-user-name>Admin User</h4>
+                  <span class="badge bg-primary text-capitalize" data-user-role>Admin</span>
+                </div>
+              </div>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span class="text-muted">Database Role</span>
+                  <strong class="text-capitalize" data-user-role>Admin</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span class="text-muted">Account Email</span>
+                  <span data-user-email>admin@library.com</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span class="text-muted">Database Engine</span>
+                  <span>PostgreSQL 18</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span class="text-muted">Backend Server</span>
+                  <span>Apache Tomcat 9 / Java Servlets</span>
+                </li>
+              </ul>
+              <div class="mt-4">
+                <a href="#" class="btn btn-outline-danger" data-action="logout">
+                  <i class="bi bi-box-arrow-left me-1"></i> Sign Out
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="panel-card p-4">
+              <h3 class="mb-3">System Information</h3>
+              <p class="text-muted mb-4">Course Project: <strong>23CSE202 Database Management Systems</strong></p>
+              <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i> Connected to PostgreSQL database <strong>library_db</strong> on port <strong>5432</strong> via Tomcat port <strong>8081</strong>.
+              </div>
+              <h5 class="mt-4 mb-2">Relational Entities</h5>
+              <div class="d-flex flex-wrap gap-2">
+                <span class="badge bg-light text-dark border">BOOK</span>
+                <span class="badge bg-light text-dark border">MEMBER</span>
+                <span class="badge bg-light text-dark border">LIBRARIAN</span>
+                <span class="badge bg-light text-dark border">BORROW</span>
+                <span class="badge bg-light text-dark border">FINE</span>
+                <span class="badge bg-light text-dark border">RESERVATION</span>
+                <span class="badge bg-light text-dark border">FEEDBACK</span>
+                <span class="badge bg-light text-dark border">AUTHOR</span>
+                <span class="badge bg-light text-dark border">PUBLISHER</span>
+                <span class="badge bg-light text-dark border">CATEGORY</span>
+                <span class="badge bg-light text-dark border">BOOK_AUTHOR</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    (function() {
+      const session = window.AppUI && window.AppUI.getSession ? window.AppUI.getSession() : null;
+      if (session) {
+        document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = session.name);
+        document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = session.role);
+        document.querySelectorAll('[data-user-email]').forEach(el => el.textContent = session.email || 'admin@library.com');
+        const initials = session.name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+        document.querySelectorAll('[data-user-initials]').forEach(el => el.textContent = initials);
+      }
+      document.querySelectorAll('[data-action="logout"]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.preventDefault();
+          if (window.AppUI && window.AppUI.clearSession) window.AppUI.clearSession();
+          window.location.href = 'login.html';
+        });
+      });
+      const shell = document.getElementById('appShell');
+      const collapseBtn = document.getElementById('sidebarCollapseBtn');
+      const mobileBtn = document.getElementById('sidebarMobileBtn');
+      const overlay = document.getElementById('sidebarOverlay');
+      if (collapseBtn) collapseBtn.addEventListener('click', () => shell.classList.toggle('sidebar-collapsed'));
+      if (mobileBtn) mobileBtn.addEventListener('click', () => shell.classList.add('sidebar-mobile-open'));
+      if (overlay) overlay.addEventListener('click', () => shell.classList.remove('sidebar-mobile-open'));
+      const dmToggle = document.getElementById('darkModeToggle');
+      if (dmToggle) {
+        dmToggle.addEventListener('click', () => {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (isDark) {
+            document.documentElement.removeAttribute('data-theme');
+            dmToggle.classList.remove('is-dark');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            dmToggle.classList.add('is-dark');
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

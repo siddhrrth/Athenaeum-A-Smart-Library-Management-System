@@ -1,0 +1,41 @@
+# Compiled class file
+*.class
+
+# Log files
+*.log
+catalina*
+
+# Package Files
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Virtual machines & temporary files
+*.tmp
+*.bak
+*.swp
+*~
+Thumbs.db
+[Ee]xpressed.txt
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# IDE and Editor Files
+.idea/
+*.iml
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+bin/
