@@ -1,4 +1,4 @@
-# 📚 Athenaeum — Library Management System
+#  Athenaeum — Library Management System
 
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-blue.svg?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Java](https://img.shields.io/badge/Java-17%2B-orange.svg?logo=openjdk&logoColor=white)](https://openjdk.org/)
@@ -10,7 +10,7 @@ An enterprise-grade, relational-database-driven **Library Management System (LMS
 
 ---
 
-## 💡 Overview
+##  Overview
 
 Manual library management and spreadsheet-based workflows suffer from lost books, inventory discrepancies, manual calculation errors for overdue penalties, and concurrent update conflicts. **Athenaeum** resolves these challenges by providing:
 
@@ -21,7 +21,7 @@ Manual library management and spreadsheet-based workflows suffer from lost books
 
 ---
 
-## 🏗️ Repository Architecture
+##  Repository Architecture
 
 ```
 ├── backend/                  # Java Servlets & JDBC Web API (Apache Tomcat)
@@ -81,7 +81,7 @@ MEMBER (1) ───────┘      └── LIBRARIAN (1)
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### 1. Database Initialization (PostgreSQL)
 
@@ -131,7 +131,7 @@ http://localhost:8081/backend/login.html
 
 ---
 
-## 💻 Standalone Console Application
+##  Standalone Console Application
 
 In addition to the web client, a standalone Java console application is provided under `cli-app/`:
 
@@ -142,6 +142,3 @@ java Main
 ```
 
 ---
-
-## 📄 License
-This project is open source and available under the [MIT License](LICENSE).
