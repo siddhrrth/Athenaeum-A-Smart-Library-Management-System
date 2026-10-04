@@ -52,7 +52,7 @@ Manual library management and spreadsheet-based workflows suffer from lost books
 
 ---
 
-## 🗄️ Relational Schema & Normalization
+## Relational Schema & Normalization
 
 The database architecture is normalized up to **Boyce-Codd Normal Form (BCNF)** to eliminate redundancy and prevent insertion, update, and deletion anomalies.
 
